@@ -1,4 +1,4 @@
 How To Use
 ===========
-* clone xudfs into %USERPROFILE%\\.xlwings;
+* clone this repo into %USERPROFILE%\\.xlwings;
 * In Excel, set UDF Modules to xudfs
