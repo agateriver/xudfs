@@ -27,87 +27,79 @@ def xxToText(number_, is_int=True):
 
 # 转换为数值
 @xw.func
-@xw.arg("string_", doc="To be converted string")
-@xw.arg("to_int", doc="convert to integer")
-def xxToNumber(string_, to_int=True):
+@xw.arg("text", doc="To be converted string")
+@xw.arg("to_int", doc="convert to integer?")
+def xxToNumber(text, to_int=True):
     """返回去除首尾指定字符的字符串，默认去除首位全角空格、半角空格及换行"""
     if to_int:
-        return int(string_)
+        return int(text)
     else:
-        return float(string_)
+        return float(text)
 
 
 # 默认去除首位全角和半角空格及换行
 @xw.func
-@xw.arg("string_", doc="To be stripped string")
+@xw.arg("text", doc="To be stripped string")
 @xw.arg(
     "pattern",
     doc="Regex for pattern, default is '　  \r\n' (0x3000,0x0020,0x00A0,\r,\n)")
-def xxStrip(string_, pattern="　  \r\n"):  # 三种空格(0x3000,0x0020,0x00A0)、换行
+def xxStrip(text, pattern="　  \r\n"):  # 三种空格(0x3000,0x0020,0x00A0)、换行
     """返回去除首尾指定字符的字符串，默认去除首位全角空格、半角空格及换行"""
-    if isinstance(string_, str) and string_:
-        return str.strip(string_, pattern)
+    if isinstance(text, str) and text:
+        return str.strip(text, pattern)
     else:
-        return string_
+        return text
 
 
 # 返回起始范围内的字串
 @xw.func
-@xw.arg("string_", doc="To be sliced string")
+@xw.arg("text", doc="To be sliced string")
 @xw.arg("start_", doc="index for starting, default=''")
 @xw.arg("end_", doc="index for endding, default=''")
-def xxSlice(string_, start_="", end_=""):
+def xxSlice(text, start_="", end_=""):
     """返回起始范围内的字串"""
-    if isinstance(string_, str) and string_:
+    if isinstance(text, str) and text:
         if start_ == '' and end_ == '':
-            return string_
+            return text
         elif end_ == '':
-            return string_[int(start_):]
+            return text[int(start_):]
         elif start_ == '':
-            return string_[:int(end_)]
+            return text[:int(end_)]
         else:
-            return string_[int(start_):int(end_)]
+            return text[int(start_):int(end_)]
     else:
-        return string_
+        return text
 
 
 # 用正则表达式替换字符串
 @xw.func
-@xw.arg("string_", doc="To be replaced string")
+@xw.arg("text", doc="To be replaced string")
 @xw.arg("pattern", doc="Regex for pattern")
 @xw.arg("repl", doc="Replacement string")
-def xxRegexSub(string_, pattern, repl):
+def xxRegexSub(text, pattern, repl):
     """用正则表达式替换字符串"""
-    if string_ and isinstance(string_, str):
-        return re.sub(pattern, repl, string_, re.MULTILINE | re.DOTALL)
+    if text and isinstance(text, str):
+        return re.sub(pattern, repl, text, re.MULTILINE | re.DOTALL)
     else:
-        return string_
+        return text
 
 
 # 用正则表达式分割字符串，结果横向显示
 @xw.func
-@xw.arg("string_", doc="To be replaced string")
+@xw.arg("text", doc="To be replaced string")
 @xw.arg("pattern", doc="Regex for pattern")
-@xw.ret(expand='table')
-def xxRegexSplitH(string_, pattern):
+def xxRegexSplitH(text, pattern):
     """用正则表达式分割字符串，结果横向显示"""
-    if string_ and isinstance(string_, str):
-        return re.split(pattern, string_)
-    else:
-        return string_
+    return re.split(pattern, text)
 
 
 # 用正则表达式分割字符串，结果纵向显示
 @xw.func
-@xw.arg("string_", doc="To be replaced string")
+@xw.arg("text", doc="To be replaced string")
 @xw.arg("pattern", doc="Regex for pattern")
-@xw.ret(expand='table')
-def xxRegexSplitV(string_, pattern):
+def xxRegexSplitV(text, pattern):
     """用正则表达式分割字符串，结果纵向显示"""
-    if string_ and isinstance(string_, str):
-        return [[s] for s in re.split(pattern, string_)]
-    else:
-        return string_
+    return [[s] for s in xxRegexSplitH(text, pattern)]
 
 
 # 将选定range内的字符串用sep连接起来
@@ -120,375 +112,145 @@ def xxJoin(range_, sep=","):
     return sep.join(cells)
 
 
-# 提取选定区域的唯一字符串集合
 @xw.func
-@xw.arg("range1", np.array, ndim=2, doc="Range  To be disctincted")
-@xw.ret(expand='table')
-def xxDistinct(range1):
-    """以列的形式返回单个所选ranges内所有唯一的值"""
+@xw.arg("ranges", expand="table", ndim=2)
+def xxSetUnionH(*ranges):
+    """以列的形式返回所选ranges内所有唯一值的并集"""
     ss = set()
-    for range in [
-            range1,
-    ]:
+    for range in [rng for rng in ranges if rng is not None]:
         for row in range:
             for cell in row:
                 ss.add(cell)
-    if ss:
-        return sorted(list([[s] for s in ss]))
-    else:
-        return None
-
-
-# 提取选定区域的唯一字符串集合
-@xw.func
-@xw.arg("range1", np.array, ndim=2, doc="Range  To be disctincted")
-@xw.ret(expand='table')
-def xxDistinctH(range1):
-    """以行的形式返回单个所选ranges内所有唯一的值"""
-    ss = set()
-    for range in [
-            range1,
-    ]:
-        for row in range:
-            for cell in row:
-                ss.add(cell)
-    if ss:
-        return sorted([s for s in ss])
-    else:
-        return None
+    return sorted([s for s in ss])
 
 
 @xw.func
-@xw.arg("range1", np.array, ndim=2, doc="Range 1 To be disctincted")
-@xw.arg("range2", np.array, ndim=2, doc="Range 2 To be disctincted")
-@xw.arg("range3", np.array, ndim=2, doc="Range 3 To be disctincted")
-@xw.arg("range4", np.array, ndim=2, doc="Range 4 To be disctincted")
-@xw.arg("range5", np.array, ndim=2, doc="Range 5 To be disctincted")
-@xw.arg("range6", np.array, ndim=2, doc="Range 6 To be disctincted")
-@xw.arg("range7", np.array, ndim=2, doc="Range 7 To be disctincted")
-@xw.arg("range8", np.array, ndim=2, doc="Range 8 To be disctincted")
-@xw.arg("range9", np.array, ndim=2, doc="Range 9 To be disctincted")
-@xw.arg("range10", np.array, ndim=2, doc="Range 10 To be disctincted")
-@xw.arg("range11", np.array, ndim=2, doc="Range 11 To be disctincted")
-@xw.arg("range12", np.array, ndim=2, doc="Range 12 To be disctincted")
-@xw.arg("range13", np.array, ndim=2, doc="Range 13 To be disctincted")
-@xw.arg("range14", np.array, ndim=2, doc="Range 14 To be disctincted")
-@xw.arg("range15", np.array, ndim=2, doc="Range 15 To be disctincted")
-@xw.arg("range16", np.array, ndim=2, doc="Range 16 To be disctincted")
-@xw.arg("range17", np.array, ndim=2, doc="Range 17 To be disctincted")
-@xw.arg("range18", np.array, ndim=2, doc="Range 18 To be disctincted")
-@xw.arg("range19", np.array, ndim=2, doc="Range 19 To be disctincted")
-@xw.arg("range20", np.array, ndim=2, doc="Range 20 To be disctincted")
-@xw.ret(expand='table')
-def xxSetUnion(range1,
-               range2=None,
-               range3=None,
-               range4=None,
-               range5=None,
-               range6=None,
-               range7=None,
-               range8=None,
-               range9=None,
-               range10=None,
-               range11=None,
-               range12=None,
-               range13=None,
-               range14=None,
-               range15=None,
-               range16=None,
-               range17=None,
-               range18=None,
-               range19=None,
-               range20=None):
-    """以列的形式返回最多20个所选ranges内所有唯一值的并集"""
-    ranges = [
-        rng for rng in [
-            range1, range2, range3, range4, range5, range6, range7, range8,
-            range9, range10, range11, range12, range13, range14, range15,
-            range16, range17, range18, range19, range20
-        ] if rng is not None
-    ]
-    ss = set()
-    for range in ranges:
-        for row in range:
-            for cell in row:
-                ss.add(cell)
-    if ss:
-        return sorted(list([[s] for s in ss]))
-    else:
-        return None
+@xw.arg("ranges", expand="table", ndim=2)
+def xxSetUnionV(*ranges):
+    """以列的形式返回所选ranges内所有唯一值的并集"""
+    return [[s] for s in xxSetUnionH(*ranges)]
 
 
-# Return the difference of two sets as a new set.
 @xw.func
-@xw.arg("range1_", np.array, ndim=2, doc="Range for Set 1")
-@xw.arg("range2_", np.array, ndim=2, doc="Range for Set 2")
-@xw.ret(expand='table')
-def xxSetDiff(range1_, range2_):
+@xw.arg("range1", np.array, ndim=2, doc="Range for Set 1")
+@xw.arg("range2", np.array, ndim=2, doc="Range for Set 2")
+def xxSetDiffH(range1, range2):
     """以列的形式返回两个所选范围的差集"""
     ss1 = set()
-    for row in range1_:
+    for row in range1:
         for cell in row:
             # print(cell)
             ss1.add(cell)
     ss2 = set()
-    for row in range2_:
+    for row in range2:
         for cell in row:
             ss2.add(cell)
     set_diff = ss1.difference(ss2)
-    if set_diff:
-        # return sorted(list([[s] for s in set_diff]))
-        return list([[s] for s in set_diff])
-    else:
-        return None
+    return sorted([s for s in set_diff])
 
 
 @xw.func
-@xw.arg("range1", np.array, ndim=2, doc="Range 1 To be disctincted")
-@xw.arg("range2", np.array, ndim=2, doc="Range 2 To be disctincted")
-@xw.arg("range3", np.array, ndim=2, doc="Range 3 To be disctincted")
-@xw.arg("range4", np.array, ndim=2, doc="Range 4 To be disctincted")
-@xw.arg("range5", np.array, ndim=2, doc="Range 5 To be disctincted")
-@xw.arg("range6", np.array, ndim=2, doc="Range 6 To be disctincted")
-@xw.arg("range7", np.array, ndim=2, doc="Range 7 To be disctincted")
-@xw.arg("range8", np.array, ndim=2, doc="Range 8 To be disctincted")
-@xw.arg("range9", np.array, ndim=2, doc="Range 9 To be disctincted")
-@xw.arg("range10", np.array, ndim=2, doc="Range 10 To be disctincted")
-@xw.arg("range11", np.array, ndim=2, doc="Range 11 To be disctincted")
-@xw.arg("range12", np.array, ndim=2, doc="Range 12 To be disctincted")
-@xw.arg("range13", np.array, ndim=2, doc="Range 13 To be disctincted")
-@xw.arg("range14", np.array, ndim=2, doc="Range 14 To be disctincted")
-@xw.arg("range15", np.array, ndim=2, doc="Range 15 To be disctincted")
-@xw.arg("range16", np.array, ndim=2, doc="Range 16 To be disctincted")
-@xw.arg("range17", np.array, ndim=2, doc="Range 17 To be disctincted")
-@xw.arg("range18", np.array, ndim=2, doc="Range 18 To be disctincted")
-@xw.arg("range19", np.array, ndim=2, doc="Range 19 To be disctincted")
-@xw.arg("range20", np.array, ndim=2, doc="Range 20 To be disctincted")
-@xw.ret(
-    expand='table',)
-def xxSetUnionH(range1,
-                range2=None,
-                range3=None,
-                range4=None,
-                range5=None,
-                range6=None,
-                range7=None,
-                range8=None,
-                range9=None,
-                range10=None,
-                range11=None,
-                range12=None,
-                range13=None,
-                range14=None,
-                range15=None,
-                range16=None,
-                range17=None,
-                range18=None,
-                range19=None,
-                range20=None):
-    """以行的形式返回最多20个所选ranges内所有唯一值的并集"""
-    ranges = [
-        rng for rng in [
-            range1, range2, range3, range4, range5, range6, range7, range8,
-            range9, range10, range11, range12, range13, range14, range15,
-            range16, range17, range18, range19, range20
-        ] if rng is not None
-    ]
-    ss = set()
-    for range in ranges:
-        for row in range:
-            for cell in row:
-                ss.add(cell)
-    if ss:
-        return sorted([s for s in ss])
-    else:
-        return None
-
-
-# Return the difference of two sets as a new set.
-@xw.func
-@xw.arg("range1_", np.array, ndim=2, doc="Range for Set 1")
-@xw.arg("range2_", np.array, ndim=2, doc="Range for Set 2")
-@xw.ret(expand='table')
-def xxSetDiff(range1_, range2_):
+@xw.arg("range1", np.array, ndim=2, doc="Range for Set 1")
+@xw.arg("range2", np.array, ndim=2, doc="Range for Set 2")
+def xxSetDiffV(range1, range2):
     """以列的形式返回两个所选范围的差集"""
-    ss1 = set()
-    for row in range1_:
-        for cell in row:
-            # print(cell)
-            ss1.add(cell)
-    ss2 = set()
-    for row in range2_:
-        for cell in row:
-            ss2.add(cell)
-    set_diff = ss1.difference(ss2)
-    if set_diff:
-        # return sorted(list([[s] for s in set_diff]))
-        return list([[s] for s in set_diff])
-    else:
-        return None
+    return [[s] for s in xxSetDiffH(range1, range2)]
 
 
-# Return the difference of two sets as a new set.
 @xw.func
-@xw.arg("range1_", np.array, ndim=2, doc="Range for Set 1")
-@xw.arg("range2_", np.array, ndim=2, doc="Range for Set 2")
-@xw.ret(expand='table')
-def xxSetDiffH(range1_, range2_):
-    """以行的形式返回两个所选范围的差集"""
-    ss1 = set()
-    for row in range1_:
-        for cell in row:
-            # print(cell)
-            ss1.add(cell)
-    ss2 = set()
-    for row in range2_:
-        for cell in row:
-            ss2.add(cell)
-    set_diff = ss1.difference(ss2)
-    if set_diff:
-        # return sorted(list([[s] for s in set_diff]))
-        return list([[s] for s in set_diff])
-    else:
-        return None
-
-
-# Return the symmetric difference of two sets as a new set.
-@xw.func
-@xw.arg("range1_", np.array, ndim=2, doc="Range for Set 1")
-@xw.arg("range2_", np.array, ndim=2, doc="Range for Set 2")
-@xw.ret(expand='table')
-def xxSetSymDiff(range1_, range2_):
+@xw.arg("range1", np.array, ndim=2, doc="Range for Set 1")
+@xw.arg("range2", np.array, ndim=2, doc="Range for Set 2")
+def xxSetSymDiffH(range1, range2):
     """以列的形式返回两个所选范围的对称差集"""
     ss1 = set()
-    for row in range1_:
+    for row in range1:
         for cell in row:
             # print(cell)
             ss1.add(cell)
     ss2 = set()
-    for row in range2_:
+    for row in range2:
         for cell in row:
             ss2.add(cell)
     set_diff = ss1.symmetric_difference(ss2)
-    if set_diff:
-        return sorted(list([[s] for s in set_diff]))
-    else:
-        return None
+    return sorted([s for s in set_diff])
 
 
-# Return the symmetric difference of two sets as a new set.
 @xw.func
-@xw.arg("range1_", np.array, ndim=2, doc="Range for Set 1")
-@xw.arg("range2_", np.array, ndim=2, doc="Range for Set 2")
-@xw.ret(expand='table')
-def xxSetSymDiffH(range1_, range2_):
+@xw.arg("range1", np.array, ndim=2, doc="Range for Set 1")
+@xw.arg("range2", np.array, ndim=2, doc="Range for Set 2")
+def xxSetSymDiffV(range1, range2):
     """以行的形式返回两个所选范围的对称差集"""
-    ss1 = set()
-    for row in range1_:
-        for cell in row:
-            # print(cell)
-            ss1.add(cell)
-    ss2 = set()
-    for row in range2_:
-        for cell in row:
-            ss2.add(cell)
-    set_diff = ss1.symmetric_difference(ss2)
-    if set_diff:
-        return sorted(list([[s] for s in set_diff]))
-    else:
-        return None
+    return [[s] for s in xxSetSymDiffH(range1, range2)]
 
 
-# Return the intersection of two sets as a new set.
 @xw.func
-@xw.arg("range1_", np.array, ndim=2, doc="Range for Set 1")
-@xw.arg("range2_", np.array, ndim=2, doc="Range for Set 2")
-@xw.ret(expand='table')
-def xxSetIntersect(range1_, range2_):
+@xw.arg("range1", np.array, ndim=2, doc="Range for Set 1")
+@xw.arg("range2", np.array, ndim=2, doc="Range for Set 2")
+def xxSetIntersectH(range1, range2):
     """以列的形式返回两个所选范围的交集"""
     ss1 = set()
-    for row in range1_:
+    for row in range1:
         for cell in row:
             ss1.add(cell)
     ss2 = set()
-    for row in range2_:
+    for row in range2:
         for cell in row:
             ss2.add(cell)
     set_intersect = ss1.intersection(ss2)
-    if set_intersect:
-        return sorted(list([[s] for s in set_intersect]))
-    else:
-        return None
+    return sorted([s for s in set_intersect])
 
 
-# Return the intersection of two sets as a new set.
 @xw.func
-@xw.arg("range1_", np.array, ndim=2, doc="Range for Set 1")
-@xw.arg("range2_", np.array, ndim=2, doc="Range for Set 2")
-@xw.ret(expand='table')
-def xxSetIntersectH(range1_, range2_):
+@xw.arg("range1", np.array, ndim=2, doc="Range for Set 1")
+@xw.arg("range2", np.array, ndim=2, doc="Range for Set 2")
+def xxSetIntersectV(range1, range2):
     """以行的形式返回两个所选范围的交集"""
-    ss1 = set()
-    for row in range1_:
-        for cell in row:
-            ss1.add(cell)
-    ss2 = set()
-    for row in range2_:
-        for cell in row:
-            ss2.add(cell)
-    set_intersect = ss1.intersection(ss2)
-    if set_intersect:
-        return sorted(list([[s] for s in set_intersect]))
-    else:
-        return None
+    return [[s] for s in xxSetIntersectH(range1, range2)]
 
 
-# Report whether another set contains this set.
 @xw.func
-@xw.arg("range1_", np.array, ndim=2, doc="Range for Set 1")
-@xw.arg("range2_", np.array, ndim=2, doc="Range for Set 2")
-def xxSetIsSubset(range1_, range2_):
+@xw.arg("range1", np.array, ndim=2, doc="Range for Set 1")
+@xw.arg("range2", np.array, ndim=2, doc="Range for Set 2")
+def xxSetIsSubset(range1, range2):
     """报告第一个集合是否是第二个集合的子集"""
     ss1 = set()
-    for row in range1_:
+    for row in range1:
         for cell in row:
             ss1.add(cell)
     ss2 = set()
-    for row in range2_:
+    for row in range2:
         for cell in row:
             ss2.add(cell)
     return ss1.issubset(ss2)
 
 
-# Report whether this set contains another set.
 @xw.func
-@xw.arg("range1_", np.array, ndim=2, doc="Range for Set 1")
-@xw.arg("range2_", np.array, ndim=2, doc="Range for Set 2")
-def xxSetIsSuperSet(range1_, range2_):
+@xw.arg("range1", np.array, ndim=2, doc="Range for Set 1")
+@xw.arg("range2", np.array, ndim=2, doc="Range for Set 2")
+def xxSetIsSuperSet(range1, range2):
     """报告第一个集合是否是第二个集合的超集"""
     ss1 = set()
-    for row in range1_:
+    for row in range1:
         for cell in row:
             ss1.add(cell)
     ss2 = set()
-    for row in range2_:
+    for row in range2:
         for cell in row:
             ss2.add(cell)
     return ss1.issuperset(ss2)
 
 
-# Return True if two sets have a null intersection.
 @xw.func
-@xw.arg("range1_", np.array, ndim=2, doc="Range for Set 1")
-@xw.arg("range2_", np.array, ndim=2, doc="Range for Set 2")
-def xxSetIsDisjoint(range1_, range2_):
+@xw.arg("range1", np.array, ndim=2, doc="Range for Set 1")
+@xw.arg("range2", np.array, ndim=2, doc="Range for Set 2")
+def xxSetIsDisjoint(range1, range2):
     """报告两个集合是否没有交集"""
     ss1 = set()
-    for row in range1_:
+    for row in range1:
         for cell in row:
             ss1.add(cell)
     ss2 = set()
-    for row in range2_:
+    for row in range2:
         for cell in row:
             ss2.add(cell)
     return ss1.isdisjoint(ss2)
