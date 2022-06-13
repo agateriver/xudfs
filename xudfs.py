@@ -10,8 +10,8 @@ import re
 
 # 转换为文本
 @xw.func
-@xw.arg("number_", doc="待转换的值")
-@xw.arg("is_int", doc="是否为整数，默认为True")
+@xw.arg("number_", doc=": 待转换的值")
+@xw.arg("is_int", doc=": 是否为整数，默认为True")
 def xxToText(number_, is_int=True):
     """返回去除首尾指定字符的字符串，默认去除首位全角空格、半角空格及换行"""
     if not isinstance(number_, str):
@@ -25,8 +25,8 @@ def xxToText(number_, is_int=True):
 
 # 转换为数值
 @xw.func
-@xw.arg("text", doc="待转换的文本")
-@xw.arg("to_int", doc="是否转换为整数，默认为True")
+@xw.arg("text", doc=": 待转换的文本")
+@xw.arg("to_int", doc=": 是否转换为整数，默认为True")
 def xxToNumber(text, to_int=True):
     """返回去除首尾指定字符的字符串，默认去除首位全角空格、半角空格及换行"""
     if to_int:
@@ -37,10 +37,10 @@ def xxToNumber(text, to_int=True):
 
 # 去除字符串首尾指定的字符,默认去除首位全角和半角空格及换行
 @xw.func
-@xw.arg("text", doc="待修剪的文本")
+@xw.arg("text", doc=": 待修剪的文本")
 @xw.arg(
     "pattern",
-    doc="首尾要去除部分的正则表达式，默认为'　  \\r\\n' (0x3000,0x0020,0x00A0,\\r,\\n)")
+    doc=": 首尾要去除部分的正则表达式，默认为'　  \\r\\n' (0x3000,0x0020,0x00A0,\\r,\\n)")
 def xxStrip(text, pattern="　  \r\n"):  # 三种空格(0x3000,0x0020,0x00A0)、换行
     """修剪掉字符串首尾匹配指定模式的字符,默认去除首位全角和半角空格及换行"""
     if isinstance(text, str) and text:
@@ -51,9 +51,9 @@ def xxStrip(text, pattern="　  \r\n"):  # 三种空格(0x3000,0x0020,0x00A0)�
 
 # 返回起始范围内的子字串
 @xw.func
-@xw.arg("text", doc="待截取的文本")
-@xw.arg("start_", doc="开始位置, 默认=''")
-@xw.arg("end_", doc="结束位置, 默认=''")
+@xw.arg("text", doc=": 待截取的文本")
+@xw.arg("start_", doc=": 开始位置, 默认=''")
+@xw.arg("end_", doc=": 结束位置, 默认=''")
 def xxSlice(text, start_="", end_=""):
     """返回起始范围内的子字串"""
     if isinstance(text, str) and text:
@@ -71,9 +71,9 @@ def xxSlice(text, start_="", end_=""):
 
 # 替换某字符串匹配模式的部分为指定字符串
 @xw.func
-@xw.arg("text", doc="待替换的文本")
-@xw.arg("pattern", doc="待替换部分模式的正则表达式")
-@xw.arg("repl", doc="替换字符串")
+@xw.arg("text", doc=": 待替换的文本")
+@xw.arg("pattern", doc=": 待替换部分模式的正则表达式")
+@xw.arg("repl", doc=": 替换字符串")
 def xxRegexSub(text, pattern, repl):
     """替换某字符串匹配模式的部分为指定字符串"""
     if text and isinstance(text, str):
@@ -84,8 +84,8 @@ def xxRegexSub(text, pattern, repl):
 
 # 用正则表达式分割字符串，结果横向显示
 @xw.func
-@xw.arg("text", doc="待分割的文本")
-@xw.arg("pattern", doc="分隔符的正则表达式")
+@xw.arg("text", doc=": 待分割的文本")
+@xw.arg("pattern", doc=": 分隔符的正则表达式")
 def xxRegexSplitH(text, pattern):
     """用正则表达式分割字符串，结果横向显示"""
     return re.split(pattern, text)
@@ -93,8 +93,8 @@ def xxRegexSplitH(text, pattern):
 
 # 用正则表达式分割字符串，结果纵向显示
 @xw.func
-@xw.arg("text", doc="待分割的文本")
-@xw.arg("pattern", doc="分隔符的正则表达式")
+@xw.arg("text", doc=": 待分割的文本")
+@xw.arg("pattern", doc=": 分隔符的正则表达式")
 def xxRegexSplitV(text, pattern):
     """用正则表达式分割字符串，结果纵向显示"""
     return [[s] for s in xxRegexSplitH(text, pattern)]
@@ -102,8 +102,8 @@ def xxRegexSplitV(text, pattern):
 
 # 将选定范围内的文本用指定的分隔符连接起来
 @xw.func
-@xw.arg("range_", ndim=2, doc="选定的范围(Range)")
-@xw.arg("sep", doc="分隔符，默认为','")
+@xw.arg("range_", ndim=2, doc=": 选定的范围(Range)")
+@xw.arg("sep", doc=": 分隔符，默认为','")
 def xxJoin(range_, sep=","):
     """将选定范围内的文本用指定的分隔符连接起来"""
     cells = [cell for row in range_ for cell in row]
@@ -111,9 +111,9 @@ def xxJoin(range_, sep=","):
 
 
 @xw.func
-@xw.arg("ranges", expand="table", ndim=2)
+@xw.arg("ranges", expand="table", ndim=2, doc=": 选定的范围(Ranges)")
 def xxSetUnionH(*ranges):
-    """以列的形式返回所选ranges内所有唯一值的并集"""
+    """返回所选ranges内所有唯一值的并集，结果横向显示"""
     ss = set()
     for range in [rng for rng in ranges if rng is not None]:
         for row in range:
@@ -123,17 +123,17 @@ def xxSetUnionH(*ranges):
 
 
 @xw.func
-@xw.arg("ranges", expand="table", ndim=2)
+@xw.arg("ranges", expand="table", ndim=2,doc=": 选定的范围(Ranges)")
 def xxSetUnionV(*ranges):
-    """以列的形式返回所选ranges内所有唯一值的并集"""
+    """返回所选ranges内所有唯一值的并集，结果纵向显示"""
     return [[s] for s in xxSetUnionH(*ranges)]
 
 
 @xw.func
-@xw.arg("range1", np.array, ndim=2, doc="代表集合1的范围(Range)")
-@xw.arg("range2", np.array, ndim=2, doc="代表集合2的范围(Range)")
+@xw.arg("range1", np.array, ndim=2, doc=": 代表集合1的范围(Range)")
+@xw.arg("range2", np.array, ndim=2, doc=": 代表集合2的范围(Range)")
 def xxSetDiffH(range1, range2):
-    """以列的形式返回两个所选范围的差集"""
+    """返回两个所选范围的差集，结果横向显示"""
     ss1 = set()
     for row in range1:
         for cell in row:
@@ -147,18 +147,18 @@ def xxSetDiffH(range1, range2):
 
 
 @xw.func
-@xw.arg("range1", np.array, ndim=2, doc="代表集合1的范围(Range)")
-@xw.arg("range2", np.array, ndim=2, doc="代表集合2的范围(Range)")
+@xw.arg("range1", np.array, ndim=2, doc=": 代表集合1的范围(Range)")
+@xw.arg("range2", np.array, ndim=2, doc=": 代表集合2的范围(Range)")
 def xxSetDiffV(range1, range2):
-    """以列的形式返回两个所选范围的差集"""
+    """返回两个所选范围的差集，结果纵向显示"""
     return [[s] for s in xxSetDiffH(range1, range2)]
 
 
 @xw.func
-@xw.arg("range1", np.array, ndim=2, doc="代表集合1的范围(Range)")
-@xw.arg("range2", np.array, ndim=2, doc="代表集合2的范围(Range)")
+@xw.arg("range1", np.array, ndim=2, doc=": 代表集合1的范围(Range)")
+@xw.arg("range2", np.array, ndim=2, doc=": 代表集合2的范围(Range)")
 def xxSetSymDiffH(range1, range2):
-    """以列的形式返回两个所选范围的对称差集"""
+    """返回两个集合的对称差集，结果横向显示"""
     ss1 = set()
     for row in range1:
         for cell in row:
@@ -172,18 +172,18 @@ def xxSetSymDiffH(range1, range2):
 
 
 @xw.func
-@xw.arg("range1", np.array, ndim=2, doc="代表集合1的范围(Range)")
-@xw.arg("range2", np.array, ndim=2, doc="代表集合2的范围(Range)")
+@xw.arg("range1", np.array, ndim=2, doc=": 代表集合1的范围(Range)")
+@xw.arg("range2", np.array, ndim=2, doc=": 代表集合2的范围(Range)")
 def xxSetSymDiffV(range1, range2):
-    """以行的形式返回两个所选范围的对称差集"""
+    """返回两个集合的对称差集，结果纵向显示"""
     return [[s] for s in xxSetSymDiffH(range1, range2)]
 
 
 @xw.func
-@xw.arg("range1", np.array, ndim=2, doc="代表集合1的范围(Range)")
-@xw.arg("range2", np.array, ndim=2, doc="代表集合2的范围(Range)")
+@xw.arg("range1", np.array, ndim=2, doc=": 代表集合1的范围(Range)")
+@xw.arg("range2", np.array, ndim=2, doc=": 代表集合2的范围(Range)")
 def xxSetIntersectH(range1, range2):
-    """以列的形式返回两个所选范围的交集"""
+    """返回两个集合的交集，结果横向显示"""
     ss1 = set()
     for row in range1:
         for cell in row:
@@ -197,16 +197,16 @@ def xxSetIntersectH(range1, range2):
 
 
 @xw.func
-@xw.arg("range1", np.array, ndim=2, doc="代表集合1的范围(Range)")
-@xw.arg("range2", np.array, ndim=2, doc="代表集合2的范围(Range)")
+@xw.arg("range1", np.array, ndim=2, doc=": 代表集合1的范围(Range)")
+@xw.arg("range2", np.array, ndim=2, doc=": 代表集合2的范围(Range)")
 def xxSetIntersectV(range1, range2):
-    """以行的形式返回两个所选范围的交集"""
+    """返回两个集合的交集，结果纵向显示"""
     return [[s] for s in xxSetIntersectH(range1, range2)]
 
 
 @xw.func
-@xw.arg("range1", np.array, ndim=2, doc="代表集合1的范围(Range)")
-@xw.arg("range2", np.array, ndim=2, doc="代表集合2的范围(Range)")
+@xw.arg("range1", np.array, ndim=2, doc=": 代表集合1的范围(Range)")
+@xw.arg("range2", np.array, ndim=2, doc=": 代表集合2的范围(Range)")
 def xxSetIsSubset(range1, range2):
     """报告第一个集合是否是第二个集合的子集"""
     ss1 = set()
@@ -221,8 +221,8 @@ def xxSetIsSubset(range1, range2):
 
 
 @xw.func
-@xw.arg("range1", np.array, ndim=2, doc="代表集合1的范围(Range)")
-@xw.arg("range2", np.array, ndim=2, doc="代表集合2的范围(Range)")
+@xw.arg("range1", np.array, ndim=2, doc=": 代表集合1的范围(Range)")
+@xw.arg("range2", np.array, ndim=2, doc=": 代表集合2的范围(Range)")
 def xxSetIsSuperSet(range1, range2):
     """报告第一个集合是否是第二个集合的超集"""
     ss1 = set()
@@ -237,8 +237,8 @@ def xxSetIsSuperSet(range1, range2):
 
 
 @xw.func
-@xw.arg("range1", np.array, ndim=2, doc="代表集合1的范围(Range)")
-@xw.arg("range2", np.array, ndim=2, doc="代表集合2的范围(Range)")
+@xw.arg("range1", np.array, ndim=2, doc=": 代表集合1的范围(Range)")
+@xw.arg("range2", np.array, ndim=2, doc=": 代表集合2的范围(Range)")
 def xxSetIsDisjoint(range1, range2):
     """报告两个集合是否没有交集"""
     ss1 = set()
