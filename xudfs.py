@@ -15,7 +15,7 @@ import re
 def xxToText(number_, is_int=True):
     """返回去除首尾指定字符的字符串，默认去除首位全角空格、半角空格及换行"""
     if not isinstance(number_, str):
-        if is_int:
+        if isinstance(is_int, bool) and is_int:
             return str(int(number_))
         else:
             return str(number_)
@@ -29,7 +29,7 @@ def xxToText(number_, is_int=True):
 @xw.arg("to_int", doc=": 是否转换为整数，默认为True")
 def xxToNumber(text, to_int=True):
     """返回去除首尾指定字符的字符串，默认去除首位全角空格、半角空格及换行"""
-    if to_int:
+    if isinstance(to_int, bool) and to_int:
         return int(text)
     else:
         return float(text)
@@ -251,6 +251,17 @@ def xxSetIsDisjoint(range1, range2):
             ss2.add(cell)
     return ss1.isdisjoint(ss2)
 
+@xw.func
+@xw.arg("ranges", expand="table", ndim=2,doc=": 选定的范围(Ranges)")
+def xxVStack(*ranges):
+    """新Excel函数VStack模拟"""
+    return np.vstack(ranges)
+
+@xw.func
+@xw.arg("ranges", expand="table", ndim=2,doc=": 选定的范围(Ranges)")
+def xxHStack(*ranges):
+    """新Excel函数HStack模拟"""
+    return np.hstack(ranges)
 
 # for debug
 if __name__ == "__main__":
