@@ -5,6 +5,7 @@
 import xlwings as xw
 import pandas as pd
 import numpy as np
+from faker import Faker
 import re
 
 
@@ -262,6 +263,61 @@ def xxVStack(*ranges):
 def xxHStack(*ranges):
     """新Excel函数HStack模拟"""
     return np.hstack(ranges)
+
+@xw.func
+@xw.arg("n",doc=": 生成的假人名数")
+@xw.arg("locale", default ="zh_CN",doc=": locale,默认zh_CN")
+@xw.ret(expand="table")
+def xxFakePersonName(n,locale ="zh_CN"):
+    """Fake Name"""
+    fake = Faker(locale)
+    return [[fake.name()] for i in range(int(n))]
+
+@xw.func
+@xw.arg("n",doc=": 生成的假身份证数")
+@xw.arg("locale", default ="zh_CN",doc=": locale,默认zh_CN")
+@xw.ret(expand="table")
+def xxFakeSSN(n,locale ="zh_CN"):
+    """Fake Name"""
+    fake = Faker(locale)
+    return [[fake.ssn()] for i in range(int(n))]
+
+@xw.func
+@xw.arg("n",doc=": 生成的假邮编数")
+@xw.arg("locale", default ="zh_CN",doc=": locale,默认zh_CN")
+@xw.ret(expand="table")
+def xxFakePostcode(n,locale ="zh_CN"):
+    """Fake Postcode"""
+    fake = Faker(locale)
+    return [[fake.postcode()] for i in range(int(n))]
+
+@xw.func
+@xw.arg("n",doc=": 生成的假公司名数")
+@xw.arg("locale", default ="zh_CN",doc=": locale,默认zh_CN")
+@xw.ret(expand="table")
+def xxFakeCommany(n,locale ="zh_CN"):
+    """Fake Company"""
+    fake = Faker(locale)
+    return [[fake.company()] for i in range(int(n))]
+
+@xw.func
+@xw.arg("n",doc=": 生成的假地址数")
+@xw.arg("locale", default ="zh_CN",doc=": locale,默认zh_CN")
+@xw.ret(expand="table")
+def xxFakeAddress(n,locale ="zh_CN"):
+    """Fake Address"""
+    fake = Faker(locale)
+    return [[fake.address()] for i in range(int(n))]
+
+@xw.func
+@xw.arg("n",doc=": 生成的电话号码数")
+@xw.arg("locale", default ="zh_CN",doc=": localee,默认zh_CN")
+@xw.ret(expand="table")
+def xxFakePhoneNumber(n,locale ="zh_CN"):
+    """Fake Phone Number"""
+    fake = Faker(locale)
+    return [[fake.phone_number()] for i in range(int(n))]
+
 
 # for debug
 if __name__ == "__main__":
