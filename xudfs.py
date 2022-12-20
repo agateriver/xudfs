@@ -2,12 +2,34 @@
 
 #### NOTE: Don't use VBA keywords for functions' arguments
 
+from random import choice
+import string
 import xlwings as xw
 import pandas as pd
 import numpy as np
 from faker import Faker
 import re
 
+__password_chars__ = list(
+    set(string.ascii_letters  + string.digits).difference(
+        set('01lIoO\'"[]:;{}()`~.,<')))
+
+__password_chars_2__ = list(
+    set(string.ascii_letters + string.punctuation + string.digits).difference(
+        set('01lIoO\'"[]:;{}()`~.,<')))
+
+def get_rand_password(digits=8,include_punctuation=False):
+    if include_punctuation:
+        return "".join(choice(__password_chars_2__) for x in range(0, digits))
+    return "".join(choice(__password_chars__) for x in range(0, digits))
+
+# 随机密码
+@xw.func
+@xw.arg("digits", doc=": 密码位数，默认为8")
+@xw.arg("include_punctuation", doc=": 是否包含标点符号，默认为False")
+def xxRandPassword(digits =8, include_punctuation=False):
+    """返回随机密码"""
+    return get_rand_password(digits,include_punctuation)
 
 # 转换为文本
 @xw.func
