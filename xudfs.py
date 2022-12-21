@@ -203,28 +203,23 @@ def xxSetSymDiffV(range1, range2):
 
 
 @xw.func
-@xw.arg("range1", np.array, ndim=2, doc=": 代表集合1的范围(Range)")
-@xw.arg("range2", np.array, ndim=2, doc=": 代表集合2的范围(Range)")
-def xxSetIntersectH(range1, range2):
-    """返回两个集合的交集，结果横向显示"""
-    ss1 = set()
-    for row in range1:
-        for cell in row:
-            ss1.add(cell)
-    ss2 = set()
-    for row in range2:
-        for cell in row:
-            ss2.add(cell)
-    set_intersect = ss1.intersection(ss2)
-    return sorted([s for s in set_intersect])
+@xw.arg("ranges", expand="table", ndim=2, doc=": 选定的范围(Ranges)")
+def xxSetIntersectH(*ranges):
+    """返回所选集合的交集，结果横向显示"""
+    ss = set()
+    for idx, range in enumerate([rng for rng in ranges if rng is not None]):
+        if idx==0:
+            ss=set([cell for row in range for cell in row])
+        else:
+            ss = ss.intersection(set([cell for row in range for cell in row]))
+    return sorted([s for s in ss])
 
 
 @xw.func
-@xw.arg("range1", np.array, ndim=2, doc=": 代表集合1的范围(Range)")
-@xw.arg("range2", np.array, ndim=2, doc=": 代表集合2的范围(Range)")
-def xxSetIntersectV(range1, range2):
+@xw.arg("ranges", expand="table", ndim=2, doc=": 选定的范围(Ranges)")
+def xxSetIntersectV(*ranges):
     """返回两个集合的交集，结果纵向显示"""
-    return [[s] for s in xxSetIntersectH(range1, range2)]
+    return [[s] for s in xxSetIntersectH(*ranges)]
 
 
 @xw.func
