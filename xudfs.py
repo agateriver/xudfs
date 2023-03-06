@@ -167,7 +167,10 @@ def xxSetDiffH(range1, range2):
         for cell in row:
             ss2.add(cell)
     set_diff = ss1.difference(ss2)
-    return sorted([s for s in set_diff])
+    if set_diff:
+        return sorted([s for s in set_diff])
+    else:
+        return None
 
 
 @xw.func
@@ -175,7 +178,11 @@ def xxSetDiffH(range1, range2):
 @xw.arg("range2", np.array, ndim=2, doc=": 代表集合2的范围(Range)")
 def xxSetDiffV(range1, range2):
     """返回两个所选范围的差集，结果纵向显示"""
-    return [[s] for s in xxSetDiffH(range1, range2)]
+    diff = xxSetDiffH(range1, range2)
+    if diff:
+        return [[s] for s in diff]
+    else:
+        return None
 
 
 @xw.func
@@ -192,7 +199,10 @@ def xxSetSymDiffH(range1, range2):
         for cell in row:
             ss2.add(cell)
     set_diff = ss1.symmetric_difference(ss2)
-    return sorted([s for s in set_diff])
+    if set_diff:
+        return sorted([s for s in set_diff])
+    else:
+        return None
 
 
 @xw.func
@@ -200,7 +210,11 @@ def xxSetSymDiffH(range1, range2):
 @xw.arg("range2", np.array, ndim=2, doc=": 代表集合2的范围(Range)")
 def xxSetSymDiffV(range1, range2):
     """返回两个集合的对称差集，结果纵向显示"""
-    return [[s] for s in xxSetSymDiffH(range1, range2)]
+    diff = xxSetSymDiffH(range1, range2)
+    if diff:
+        return [[s] for s in diff]
+    else:
+        return None
 
 
 @xw.func
@@ -271,19 +285,21 @@ def xxSetIsDisjoint(range1, range2):
     return ss1.isdisjoint(ss2)
 
 @xw.func
-@xw.arg("ranges", expand="table", ndim=2,doc=": 选定的范围(Ranges)")
+@xw.arg("ranges", ndim=2, doc=": 选定的范围(Ranges)")
+@xw.ret(expand="table")
 def xxVStack(*ranges):
     """新Excel函数VStack模拟"""
     return np.vstack(ranges)
 
 @xw.func
-@xw.arg("ranges", expand="table", ndim=2,doc=": 选定的范围(Ranges)")
+@xw.arg("ranges", ndim=2, doc=": 选定的范围(Ranges)")
+@xw.ret(expand="table")
 def xxHStack(*ranges):
     """新Excel函数HStack模拟"""
     return np.hstack(ranges)
 
 @xw.func
-@xw.arg("n",doc=": 生成的假人名数")
+@xw.arg("n", doc=": 生成的假人名数")
 @xw.arg("locale", default ="zh_CN",doc=": locale,默认zh_CN")
 @xw.ret(expand="table")
 def xxFakePersonName(n,locale ="zh_CN"):
