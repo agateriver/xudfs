@@ -358,10 +358,11 @@ def xxFakePhoneNumber(n,locale ="zh_CN"):
 @xw.func
 @xw.arg("names",doc=": 表示人名的列数据")
 @xw.arg("cellsPerRow",default = 5, doc=": 转换后每行的单元格数")
-@xw.arg("wrapByRow",default = True, doc=": 转换后的数据是按行折返还是按列折返,默认按行折返")
+@xw.arg("wrapByRow",default = True, doc=": 转换后的数据是按行折返还是按列折返,TRUE or FALSE,默认TRUE按行折返")
+@xw.arg("fillBlank",default = True, doc=": 转换后对两字名是否填充空格补全为三字宽度,TRUE or FALSE,默认TRUE填充")
 @xw.arg("ordyBy",default = "pinyin", doc=": 转换后的数据是按pinyin或是stroke排序,默认按pinyin排序")
 @xw.ret(expand="table")
-def xxWrapNames(names, cellsPerRow=5, wrapByRow=True,ordyBy="pinyin"):
+def xxWrapNames(names, cellsPerRow=5, wrapByRow=True,fillBlank=True,ordyBy="pinyin"):
     """将一行/列中文人名转换为按拼音或笔画排序的矩阵"""
     len_names = len(names)
     if ordyBy == "pinyin":
@@ -370,6 +371,10 @@ def xxWrapNames(names, cellsPerRow=5, wrapByRow=True,ordyBy="pinyin"):
         names= css.sort_by_stroke(names)
     else:
         raise ValueError("ordyBy must be pinyin or stroke")
+    if fillBlank:
+        for i in range(len_names):
+            if len(names[i]) == 2 and names[i][1] not in ["　"," "]:
+                names[i] = names[i][0] + "　"+names[i][1]
     cellsPerRow=int(cellsPerRow)
     rows = math.ceil(len_names/cellsPerRow )
     result=[]
