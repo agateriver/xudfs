@@ -5,11 +5,13 @@
 from random import choice
 import string
 import xlwings as xw
-import pandas as pd
+import pandas as pd  # noqa: F401
 import numpy as np
 from faker import Faker
 import re
 import math
+import pypinyin as py
+import chinese_stroke_sorting as css
 
 __password_chars__ = list(
     set(string.ascii_letters  + string.digits).difference(
@@ -353,38 +355,45 @@ def xxFakePhoneNumber(n,locale ="zh_CN"):
     return [[fake.phone_number()] for i in range(int(n))]
 
 
-# 将列数据转换为多行数据
 @xw.func
-@xw.arg("colData",doc=": 列数据")
+@xw.arg("names",doc=": 表示人名的列数据")
 @xw.arg("cellsPerRow",default = 5, doc=": 转换后每行的单元格数")
-@xw.arg("wrapByRow",default = True, doc=": 转换后的数据是按行排列还是按列排列,默认按行排列")
+@xw.arg("wrapByRow",default = True, doc=": 转换后的数据是按行折返还是按列折返,默认按行折返")
+@xw.arg("ordyBy",default = "pinyin", doc=": 转换后的数据是按pinyin或是stroke排序,默认按pinyin排序")
 @xw.ret(expand="table")
-def xxColToRows(colData, cellsPerRow=5, wrapByRow=True):
-    len_colData = len(colData)
+def xxWrapNames(names, cellsPerRow=5, wrapByRow=True,ordyBy="pinyin"):
+    """将一行/列中文人名转换为按拼音或笔画排序的矩阵"""
+    len_names = len(names)
+    if ordyBy == "pinyin":
+        names.sort(key=lambda x: py.lazy_pinyin(x, style=py.Style.FIRST_LETTER))
+    elif ordyBy == "stroke":
+        names= css.sort_by_stroke(names)
+    else:
+        raise ValueError("ordyBy must be pinyin or stroke")
     cellsPerRow=int(cellsPerRow)
-    rows = math.ceil(len_colData/cellsPerRow )
+    rows = math.ceil(len_names/cellsPerRow )
     result=[]
     if wrapByRow:
         for  i in range(rows):
             if i< rows-1:
-                result.append([colData[i*cellsPerRow+j] for j in range(cellsPerRow)])
+                result.append([names[i*cellsPerRow+j] for j in range(cellsPerRow)])
             else:
-                result.append([colData[i*cellsPerRow+j] for j in range(len_colData-i*cellsPerRow)])
+                result.append([names[i*cellsPerRow+j] for j in range(len_names-i*cellsPerRow)])  # noqa: E501
     else:
-        cellsInLastCol = len_colData - (cellsPerRow-1)* rows
+        cellsInLastCol = len_names - (cellsPerRow-1)* rows
         for  i in range(rows):
             result.append([])
             
         if cellsInLastCol == cellsPerRow:
             for c in range(cellsPerRow):
                 for r in range(rows):
-                    result[r].append(colData[c*rows+r])
+                    result[r].append(names[c*rows+r])
         else:
             for c in range(cellsPerRow-1):
                 for r in range(rows):
-                    result[r].append(colData[c*rows+r])
+                    result[r].append(names[c*rows+r])
             for r in range(cellsInLastCol): # 最后一列的数据
-                result[r].append(colData[(cellsPerRow-1)*rows+r])
+                result[r].append(names[(cellsPerRow-1)*rows+r])
 
     for row in result:
         if len(row)<cellsPerRow:
