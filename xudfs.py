@@ -12,6 +12,7 @@ import re
 import math
 import pypinyin as py
 import chinese_stroke_sorting as css
+import pyodbc
 
 __password_chars__ = list(
     set(string.ascii_letters  + string.digits).difference(
@@ -404,6 +405,26 @@ def xxWrapNames(names, cellsPerRow=5, wrapByRow=True,fillBlank=True,ordyBy="piny
         if len(row)<cellsPerRow:
             row.extend([None]*(cellsPerRow-len(row)))
     return result
+
+@xw.func
+@xw.arg("names",doc=": 表示人名的列数据")
+@xw.arg("ordyBy",default = "pinyin", doc=": 转换后的数据是按pinyin或是stroke排序,默认按pinyin排序")
+def xxSortViaSQLServer(names,ordyBy = "pinyin"):
+	conn = pyodbc.connect("Driver={SQL Server};Server=.;Database=msdb;Trusted_Connection=yes;")  # noqa: E501
+	cursor = conn.cursor()
+	s="""'),('""".join(names)
+	default_order = ordyBy
+	if ordyBy == "pinyin":
+		default_order = "Chinese_Simplified_Pinyin_100_CI_AS_KS_WS"
+	if ordyBy in ["bihua","stroke"] :
+		default_order =  "Chinese_Simplified_Stroke_Order_100_CS_AS_KS_WS"
+	query = f"""SELECT C FROM (VALUES ('{s}')) as T(C) order by C collate {default_order}"""
+	cursor.execute(query)
+	result=[]
+	for row in cursor:
+		result.append(row[0])  
+	return result
+
 
 # for debug
 if __name__ == "__main__":
