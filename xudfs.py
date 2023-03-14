@@ -27,7 +27,6 @@ def get_rand_password(digits=8,include_punctuation=False):
         return "".join(choice(__password_chars_2__) for x in range(0, digits))
     return "".join(choice(__password_chars__) for x in range(0, digits))
 
-# 随机密码
 @xw.func
 @xw.arg("digits", doc=": 密码位数，默认为8")
 @xw.arg("include_punctuation", doc=": 是否包含标点符号，默认为False")
@@ -35,7 +34,6 @@ def xxRandPassword(digits =8, include_punctuation=False):
     """返回随机密码"""
     return get_rand_password(int(digits),include_punctuation)
 
-# 转换为文本
 @xw.func
 @xw.arg("number_", doc=": 待转换的值")
 @xw.arg("is_int", doc=": 是否为整数，默认为True")
@@ -50,7 +48,6 @@ def xxToText(number_, is_int=True):
         return number_
 
 
-# 转换为数值
 @xw.func
 @xw.arg("text", doc=": 待转换的文本")
 @xw.arg("to_int", doc=": 是否转换为整数，默认为True")
@@ -62,7 +59,6 @@ def xxToNumber(text, to_int=True):
         return float(text)
 
 
-# 去除字符串首尾指定的字符,默认去除首位全角和半角空格及换行
 @xw.func
 @xw.arg("text", doc=": 待修剪的文本")
 @xw.arg(
@@ -76,7 +72,6 @@ def xxStrip(text, pattern="　  \r\n"):  # 三种空格(0x3000,0x0020,0x00A0)�
         return text
 
 
-# 返回起始范围内的子字串
 @xw.func
 @xw.arg("text", doc=": 待截取的文本")
 @xw.arg("start_", doc=": 开始位置, 默认=''")
@@ -96,7 +91,6 @@ def xxSlice(text, start_="", end_=""):
         return text
 
 
-# 替换某字符串匹配模式的部分为指定字符串
 @xw.func
 @xw.arg("text", doc=": 待替换的文本")
 @xw.arg("pattern", doc=": 待替换部分模式的正则表达式")
@@ -109,7 +103,6 @@ def xxRegexSub(text, pattern, repl):
         return text
 
 
-# 用正则表达式分割字符串，结果横向显示
 @xw.func
 @xw.arg("text", doc=": 待分割的文本")
 @xw.arg("pattern", doc=": 分隔符的正则表达式")
@@ -118,7 +111,6 @@ def xxRegexSplitH(text, pattern):
     return re.split(pattern, text)
 
 
-# 用正则表达式分割字符串，结果纵向显示
 @xw.func
 @xw.arg("text", doc=": 待分割的文本")
 @xw.arg("pattern", doc=": 分隔符的正则表达式")
@@ -127,7 +119,6 @@ def xxRegexSplitV(text, pattern):
     return [[s] for s in xxRegexSplitH(text, pattern)]
 
 
-# 将选定范围内的文本用指定的分隔符连接起来
 @xw.func
 @xw.arg("range_", ndim=2, doc=": 选定的范围(Range)")
 @xw.arg("sep", doc=": 分隔符，默认为','")
@@ -407,24 +398,44 @@ def xxWrapNames(names, cellsPerRow=5, wrapByRow=True,fillBlank=True,ordyBy="piny
     return result
 
 @xw.func
-@xw.arg("names",doc=": 表示人名的列数据")
+@xw.arg("names",doc=": 表示人名的列或列数据")
 @xw.arg("ordyBy",default = "pinyin", doc=": 转换后的数据是按pinyin或是stroke排序,默认按pinyin排序")
-def xxSortViaSQLServer(names,ordyBy = "pinyin"):
-	conn = pyodbc.connect("Driver={SQL Server};Server=.;Database=msdb;Trusted_Connection=yes;")  # noqa: E501
-	cursor = conn.cursor()
-	s="""'),('""".join(names)
-	default_order = ordyBy
-	if ordyBy == "pinyin":
-		default_order = "Chinese_Simplified_Pinyin_100_CI_AS_KS_WS"
-	if ordyBy in ["bihua","stroke"] :
-		default_order =  "Chinese_Simplified_Stroke_Order_100_CS_AS_KS_WS"
-	query = f"""SELECT C FROM (VALUES ('{s}')) as T(C) order by C collate {default_order}"""
-	cursor.execute(query)
-	result=[]
-	for row in cursor:
-		result.append(row[0])  
-	return result
+def xxSortCNamesViaSQLServerH(names,ordyBy = "pinyin"):
+    """通过SQL Server的排序规则将一行/列中文人名转换为按拼音或笔画排序,可指定排序规则实现其它排序""" 
+    conn = pyodbc.connect("Driver={SQL Server};Server=.;Database=msdb;Trusted_Connection=yes;")  # noqa: E501
+    cursor = conn.cursor()
+    s="""'),('""".join(names)
+    collate = ordyBy
+    if ordyBy == "pinyin":
+        collate = "Chinese_Simplified_Pinyin_100_CI_AS_KS_WS"
+    if ordyBy in ["bihua","stroke"] :
+        collate =  "Chinese_Simplified_Stroke_Order_100_CS_AS_KS_WS"
+    query = f"""SELECT C FROM (VALUES ('{s}')) as T(C) order by C collate {collate}"""  # noqa: E501
+    cursor.execute(query)
+    result=[]
+    for row in cursor:
+        result.append(row[0])  
+    return result
 
+@xw.func
+@xw.arg("names",doc=": 表示人名的列或列数据")
+@xw.arg("ordyBy",default = "pinyin", doc=": 转换后的数据是按pinyin或是stroke排序,默认按pinyin排序")
+def xxSortCNamesViaSQLServerV(names,ordyBy = "pinyin"):
+    """通过SQL Server的排序规则将一行/列中文人名按拼音或笔画排序,可指定其它排序规则实现更多排序""" 
+    conn = pyodbc.connect("Driver={SQL Server};Server=.;Database=msdb;Trusted_Connection=yes;")  # noqa: E501
+    cursor = conn.cursor()
+    s="""'),('""".join(names)
+    collate = ordyBy
+    if ordyBy.lower() == "pinyin":
+        collate = "Chinese_Simplified_Pinyin_100_CI_AS_KS_WS"
+    if ordyBy.lower() in ["bihua","stroke"] :
+        collate =  "Chinese_Simplified_Stroke_Order_100_CS_AS_KS_WS"
+    query = f"""SELECT C FROM (VALUES ('{s}')) as T(C) order by C collate {collate}"""  # noqa: E501
+    cursor.execute(query)
+    result=[]
+    for row in cursor:
+        result.append([row[0],])  
+    return result
 
 # for debug
 if __name__ == "__main__":
