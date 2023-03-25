@@ -437,6 +437,36 @@ def xxSortCNamesViaSQLServerV(names,ordyBy = "pinyin"):
         result.append([row[0],])  
     return result
 
+
+@xw.func
+@xw.arg("data",doc=": 待随机分组的行或列数据")
+@xw.arg("n", doc=": 分成多少组")
+@xw.ret(expand="table")
+def xxRandomGroup(data, n):
+    """将数据均分成n组,每组一列"""
+    def chunks(data, n):
+        import random
+        random.shuffle(data)  # 随机洗牌
+        int_part, rem_part = divmod(len(data), int(n))  
+        i = 0
+        while i < len(data):
+            if rem_part > 0: #如若总样本不是是分组数的整数倍，则前几组多分一个
+                yield data[i:i + int_part+1]
+                rem_part -= 1
+                i += int_part+1
+            else: # 如若总样本正好是分组数的整数倍则均分
+                yield data[i:i + int_part]
+                i += int_part     
+    result = list(chunks(data, int(n)))
+    int_part, rem_part = divmod(len(data), int(n))  
+    if rem_part>0: # 补齐为矩阵
+        for i in range(rem_part,int(n)):
+            result[i].append(None)
+    transposed = list(map(list, zip(*result))) # 转置为每列一组
+    return transposed
+    
+
+
 # for debug
 if __name__ == "__main__":
     xw.serve()
