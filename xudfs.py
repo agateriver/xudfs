@@ -465,6 +465,32 @@ def xxRandomGroup(data, n):
     transposed = list(map(list, zip(*result))) # 转置为每列一组
     return transposed
     
+@xw.func
+@xw.arg("data",ndim=2,doc=":样本总体")
+@xw.arg("n", doc=": 抽样数")
+@xw.ret(expand="table")
+def xxRandomSampleH(data, n):
+    """从总体中抽n个样本"""
+    import random
+    result = []
+    xdata=[j for i in data for j in i]
+    for i in random.sample(xdata, int(n)):
+        result.append(i)
+    return result
+
+@xw.func
+@xw.arg("data",ndim=2,doc=":样本总体")
+@xw.arg("n", doc=": 抽样数")
+@xw.ret(expand="table")
+def xxRandomSampleV(data, n):
+    """从总体中抽n个样本"""
+    import random
+    result = []
+    xdata=[j for i in data for j in i]
+    for i in random.sample(xdata, int(n)):
+        result.append([i,])
+    return result
+    
 
 
 # for debug
