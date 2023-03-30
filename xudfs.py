@@ -466,7 +466,7 @@ def xxRandomGroup(data, n):
     return transposed
     
 @xw.func
-@xw.arg("data",ndim=2,doc=":样本总体")
+@xw.arg("data",ndim=2,doc=":样本总体，行、列或矩阵")
 @xw.arg("n", doc=": 抽样数")
 @xw.ret(expand="table")
 def xxRandomSampleH(data, n):
@@ -479,7 +479,7 @@ def xxRandomSampleH(data, n):
     return result
 
 @xw.func
-@xw.arg("data",ndim=2,doc=":样本总体")
+@xw.arg("data",ndim=2,doc=":样本总体,行、列或矩阵")
 @xw.arg("n", doc=": 抽样数")
 @xw.ret(expand="table")
 def xxRandomSampleV(data, n):
