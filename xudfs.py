@@ -129,7 +129,7 @@ def xxJoin(range_, sep=","):
 
 
 @xw.func
-@xw.arg("ranges", expand="table", ndim=2, doc=": 选定的范围(Ranges)")
+@xw.arg("ranges", ndim=2, doc=": 选定的范围(Ranges)")
 def xxSetUnionH(*ranges):
     """返回所选ranges内所有唯一值的并集，结果横向显示"""
     ss = set()
@@ -212,7 +212,7 @@ def xxSetSymDiffV(range1, range2):
 
 
 @xw.func
-@xw.arg("ranges", expand="table", ndim=2, doc=": 选定的范围(Ranges)")
+@xw.arg("ranges", ndim=2, doc=": 选定的范围(Ranges)")
 def xxSetIntersectH(*ranges):
     """返回所选集合的交集，结果横向显示"""
     ss = set()
@@ -225,7 +225,7 @@ def xxSetIntersectH(*ranges):
 
 
 @xw.func
-@xw.arg("ranges", expand="table", ndim=2, doc=": 选定的范围(Ranges)")
+@xw.arg("ranges", ndim=2, doc=": 选定的范围(Ranges)")
 def xxSetIntersectV(*ranges):
     """返回两个集合的交集，结果纵向显示"""
     return [[s] for s in xxSetIntersectH(*ranges)]
@@ -280,14 +280,12 @@ def xxSetIsDisjoint(range1, range2):
 
 @xw.func
 @xw.arg("ranges", ndim=2, doc=": 选定的范围(Ranges)")
-@xw.ret(expand="table")
 def xxVStack(*ranges):
     """新Excel函数VStack模拟"""
     return np.vstack(ranges)
 
 @xw.func
 @xw.arg("ranges", ndim=2, doc=": 选定的范围(Ranges)")
-@xw.ret(expand="table")
 def xxHStack(*ranges):
     """新Excel函数HStack模拟"""
     return np.hstack(ranges)
@@ -295,7 +293,6 @@ def xxHStack(*ranges):
 @xw.func
 @xw.arg("n", doc=": 生成的假人名数")
 @xw.arg("locale", default ="zh_CN",doc=": locale,默认zh_CN")
-@xw.ret(expand="table")
 def xxFakePersonName(n,locale ="zh_CN"):
     """Fake Name"""
     fake = Faker(locale)
@@ -304,7 +301,6 @@ def xxFakePersonName(n,locale ="zh_CN"):
 @xw.func
 @xw.arg("n",doc=": 生成的假身份证数")
 @xw.arg("locale", default ="zh_CN",doc=": locale,默认zh_CN")
-@xw.ret(expand="table")
 def xxFakeSSN(n,locale ="zh_CN"):
     """Fake Name"""
     fake = Faker(locale)
@@ -313,7 +309,6 @@ def xxFakeSSN(n,locale ="zh_CN"):
 @xw.func
 @xw.arg("n",doc=": 生成的假邮编数")
 @xw.arg("locale", default ="zh_CN",doc=": locale,默认zh_CN")
-@xw.ret(expand="table")
 def xxFakePostcode(n,locale ="zh_CN"):
     """Fake Postcode"""
     fake = Faker(locale)
@@ -322,7 +317,6 @@ def xxFakePostcode(n,locale ="zh_CN"):
 @xw.func
 @xw.arg("n",doc=": 生成的假公司名数")
 @xw.arg("locale", default ="zh_CN",doc=": locale,默认zh_CN")
-@xw.ret(expand="table")
 def xxFakeCommany(n,locale ="zh_CN"):
     """Fake Company"""
     fake = Faker(locale)
@@ -331,7 +325,6 @@ def xxFakeCommany(n,locale ="zh_CN"):
 @xw.func
 @xw.arg("n",doc=": 生成的假地址数")
 @xw.arg("locale", default ="zh_CN",doc=": locale,默认zh_CN")
-@xw.ret(expand="table")
 def xxFakeAddress(n,locale ="zh_CN"):
     """Fake Address"""
     fake = Faker(locale)
@@ -340,7 +333,6 @@ def xxFakeAddress(n,locale ="zh_CN"):
 @xw.func
 @xw.arg("n",doc=": 生成的电话号码数")
 @xw.arg("locale", default ="zh_CN",doc=": localee,默认zh_CN")
-@xw.ret(expand="table")
 def xxFakePhoneNumber(n,locale ="zh_CN"):
     """Fake Phone Number"""
     fake = Faker(locale)
@@ -353,7 +345,6 @@ def xxFakePhoneNumber(n,locale ="zh_CN"):
 @xw.arg("wrapByRow",default = True, doc=": 转换后的数据是按行折返还是按列折返,TRUE or FALSE,默认TRUE按行折返")
 @xw.arg("fillBlank",default = True, doc=": 转换后对两字名是否填充空格补全为三字宽度,TRUE or FALSE,默认TRUE填充")
 @xw.arg("ordyBy",default = "pinyin", doc=": 转换后的数据是按pinyin或是stroke排序,默认按pinyin排序")
-@xw.ret(expand="table")
 def xxWrapNames(names, cellsPerRow=5, wrapByRow=True,fillBlank=True,ordyBy="pinyin"):
     """将一行/列中文人名转换为按拼音或笔画排序的矩阵"""
     len_names = len(names)
@@ -400,9 +391,10 @@ def xxWrapNames(names, cellsPerRow=5, wrapByRow=True,fillBlank=True,ordyBy="piny
 @xw.func
 @xw.arg("names",doc=": 表示人名的列或列数据")
 @xw.arg("ordyBy",default = "pinyin", doc=": 转换后的数据是按pinyin或是stroke排序,默认按pinyin排序")
-def xxSortCNamesViaSQLServerH(names,ordyBy = "pinyin"):
+@xw.arg("sqlConStr",default = "Driver={SQL Server};Server=.;Database=msdb;Trusted_Connection=yes", doc=": SQLServer 连接字符串，默认为本机信任连接")
+def xxSortCNamesViaSQLServerH(names,ordyBy = "pinyin",sqlConStr="Driver={SQL Server};Server=.;Database=msdb;Trusted_Connection=yes"):
     """通过SQL Server的排序规则将一行/列中文人名转换为按拼音或笔画排序,可指定排序规则实现其它排序""" 
-    conn = pyodbc.connect("Driver={SQL Server};Server=.;Database=msdb;Trusted_Connection=yes;")  # noqa: E501
+    conn = pyodbc.connect(sqlConStr)
     cursor = conn.cursor()
     s="""'),('""".join(names)
     collate = ordyBy
@@ -414,15 +406,16 @@ def xxSortCNamesViaSQLServerH(names,ordyBy = "pinyin"):
     cursor.execute(query)
     result=[]
     for row in cursor:
-        result.append(row[0])  
+        result.append(row[0])
     return result
 
 @xw.func
 @xw.arg("names",doc=": 表示人名的列或列数据")
 @xw.arg("ordyBy",default = "pinyin", doc=": 转换后的数据是按pinyin或是stroke排序,默认按pinyin排序")
-def xxSortCNamesViaSQLServerV(names,ordyBy = "pinyin"):
+@xw.arg("sqlConStr",default = "Driver={SQL Server};Server=.;Database=msdb;Trusted_Connection=yes", doc=": SQLServer 连接字符串，默认为本机信任连接")
+def xxSortCNamesViaSQLServerV(names,ordyBy = "pinyin",sqlConStr="Driver={SQL Server};Server=.;Database=msdb;Trusted_Connection=yes"):
     """通过SQL Server的排序规则将一行/列中文人名按拼音或笔画排序,可指定其它排序规则实现更多排序""" 
-    conn = pyodbc.connect("Driver={SQL Server};Server=.;Database=msdb;Trusted_Connection=yes;")  # noqa: E501
+    conn = pyodbc.connect(sqlConStr)
     cursor = conn.cursor()
     s="""'),('""".join(names)
     collate = ordyBy
@@ -441,7 +434,6 @@ def xxSortCNamesViaSQLServerV(names,ordyBy = "pinyin"):
 @xw.func
 @xw.arg("data",doc=": 待随机分组的行或列数据")
 @xw.arg("n", doc=": 分成多少组")
-@xw.ret(expand="table")
 def xxRandomGroup(data, n):
     """将数据均分成n组,每组一列"""
     def chunks(data, n):
@@ -468,7 +460,6 @@ def xxRandomGroup(data, n):
 @xw.func
 @xw.arg("data",ndim=2,doc=":样本总体，行、列或矩阵")
 @xw.arg("n", doc=": 抽样数")
-@xw.ret(expand="table")
 def xxRandomSampleH(data, n):
     """从总体中抽n个样本"""
     import random
@@ -481,7 +472,6 @@ def xxRandomSampleH(data, n):
 @xw.func
 @xw.arg("data",ndim=2,doc=":样本总体,行、列或矩阵")
 @xw.arg("n", doc=": 抽样数")
-@xw.ret(expand="table")
 def xxRandomSampleV(data, n):
     """从总体中抽n个样本"""
     import random
@@ -491,7 +481,27 @@ def xxRandomSampleV(data, n):
         result.append([i,])
     return result
     
+@xw.func
+@xw.arg("lookup_value",doc=":  查找值")
+@xw.arg("lookup_array", ndim=2,doc=": 在哪一列查找")
+@xw.arg("return_array", ndim=2,doc=": 返回值所在列")
+def xxLookupMultiple(lookup_value, lookup_array,return_array):
+    """多值查找"""
+    result = []
+    flatten_lookup_array = [j for i in lookup_array for j in i]
+    flatten_return_array = [j for i in return_array for j in i]
+    for idx,value in enumerate(flatten_lookup_array):
+        if lookup_value == value:
+            result.append(flatten_return_array[idx])
+    return result
 
+@xw.func
+@xw.arg("data",convert=pd.DataFrame, ndim=2,doc=": 待查询的数据区，第一行为列名")
+@xw.arg("expr",doc=": 查询表达式，写法参见pandas文档。如：'A > 0 and `B 1` < 0' and C.str.startswith('a') and D in [1,2,3]'")
+def xxPandasQuery(data, expr):
+    """pandas.DataFrame.query()的封装。"""
+    qry = data.query(expr)
+    return qry
 
 # for debug
 if __name__ == "__main__":
