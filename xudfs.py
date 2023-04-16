@@ -496,12 +496,23 @@ def xxLookupMultiple(lookup_value, lookup_array,return_array):
     return result
 
 @xw.func
-@xw.arg("data",convert=pd.DataFrame, ndim=2,doc=": 待查询的数据区，第一行为列名")
+@xw.arg("data",convert=pd.DataFrame, index=0, ndim=2,doc=": 待查询的数据区，第一行为列名")
 @xw.arg("expr",doc=": 查询表达式，写法参见pandas文档。如：'A > 0 and `B 1` < 0' and C.str.startswith('a') and D in [1,2,3]'")
+@xw.ret(index=False)
 def xxPandasQuery(data, expr):
     """pandas.DataFrame.query()的封装。"""
-    qry = data.query(expr)
+    qry = data.query(expr, inplace=False)
     return qry
+
+@xw.func
+@xw.arg("colA",doc=": 以字母表示的列索引")
+def xxColumnLetterToNumber(colA):
+    """将以字母表示的列索引转换为数字表示"""
+    num = 0
+    for c in colA:
+        if c in string.ascii_letters:
+            num = num * 26 + (ord(c.upper()) - ord('A')) + 1
+    return num
 
 # for debug
 if __name__ == "__main__":
