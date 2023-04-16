@@ -505,14 +505,28 @@ def xxPandasQuery(data, expr):
     return qry
 
 @xw.func
-@xw.arg("colA",doc=": 以字母表示的列索引")
-def xxColumnIndexLetterToNumber(colA):
+@xw.arg("col_index",doc=": 以字母表示的列索引")
+def xxColumnIndexToNumber(col_index):
     """将以字母表示的列索引转换为数字表示"""
     num = 0
-    for c in colA:
+    for c in col_index:
         if c in string.ascii_letters:
             num = num * 26 + (ord(c.upper()) - ord('A')) + 1
     return num
+
+@xw.func
+@xw.arg("col_index",doc=": 以数字表示的列索引")
+def xxColumnIndexToLetter(col_index):
+    """将以数字表示的列索引转换为字母表示"""
+    letter = ""
+    _col_index = int(col_index)
+    while _col_index > 0:
+        remainder = _col_index % 26
+        if remainder == 0:
+            remainder = 26
+        letter += chr(remainder + 64)
+        _col_index = (_col_index - remainder) // 26
+    return letter[::-1]
 
 # for debug
 if __name__ == "__main__":
