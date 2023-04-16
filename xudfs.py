@@ -506,7 +506,7 @@ def xxPandasQuery(data, expr):
 
 @xw.func
 @xw.arg("colA",doc=": 以字母表示的列索引")
-def xxColumnLetterToNumber(colA):
+def xxColumnIndexLetterToNumber(colA):
     """将以字母表示的列索引转换为数字表示"""
     num = 0
     for c in colA:
