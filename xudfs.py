@@ -98,25 +98,32 @@ def xxSlice(text, start_="", end_=""):
 def xxRegexSub(text, pattern, repl):
     """替换某字符串匹配模式的部分为指定字符串"""
     if text and isinstance(text, str):
-        return re.sub(pattern, repl, text, re.MULTILINE | re.DOTALL)
+        if pattern and isinstance(pattern, str):
+            if repl is None:
+                return re.sub(pattern, '', text,re.MULTILINE | re.DOTALLt)
+            if repl and isinstance(repl, str):
+                return re.sub(pattern, repl, text,re.MULTILINE | re.DOTALL)
+            return text
+        else:
+            return text
     else:
         return text
 
 
 @xw.func
 @xw.arg("text", doc=": 待分割的文本")
-@xw.arg("pattern", doc=": 分隔符的正则表达式")
-def xxRegexSplitH(text, pattern):
+@xw.arg("sep_pattern", doc=": 分隔符的正则表达式")
+def xxRegexSplitH(text, sep_pattern):
     """用正则表达式分割字符串，结果横向显示"""
-    return re.split(pattern, text)
+    return re.split(sep_pattern, text)
 
 
 @xw.func
 @xw.arg("text", doc=": 待分割的文本")
-@xw.arg("pattern", doc=": 分隔符的正则表达式")
-def xxRegexSplitV(text, pattern):
+@xw.arg("sep_pattern", doc=": 分隔符的正则表达式")
+def xxRegexSplitV(text, sep_pattern):
     """用正则表达式分割字符串，结果纵向显示"""
-    return [[s] for s in xxRegexSplitH(text, pattern)]
+    return [[s] for s in xxRegexSplitH(text, sep_pattern)]
 
 
 @xw.func
