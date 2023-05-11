@@ -100,7 +100,7 @@ def xxRegexSub(text, pattern, repl):
     if text and isinstance(text, str):
         if pattern and isinstance(pattern, str):
             if repl is None:
-                return re.sub(pattern, '', text,re.MULTILINE | re.DOTALLt)
+                return re.sub(pattern, '', text,re.MULTILINE | re.DOTALL)
             if repl and isinstance(repl, str):
                 return re.sub(pattern, repl, text,re.MULTILINE | re.DOTALL)
             return text
