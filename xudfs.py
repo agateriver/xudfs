@@ -355,44 +355,49 @@ def xxFakePhoneNumber(n,locale ="zh_CN"):
 def xxWrapNames(names, cellsPerRow=5, wrapByRow=True,fillBlank=True,ordyBy="pinyin"):
     """将一行/列中文人名转换为按拼音或笔画排序的矩阵"""
     len_names = len(names)
-    if ordyBy == "pinyin":
+    if ordyBy in ["py","pinyin"]:
         names.sort(key=lambda x: py.lazy_pinyin(x, style=py.Style.FIRST_LETTER))
-    elif ordyBy == "stroke":
+    elif ordyBy in ["stroke","bihua"]:
         names= css.sort_by_stroke(names)
     else:
-        raise ValueError("ordyBy must be pinyin or stroke")
+        raise ValueError("ordyBy must be pinyin/py or bihua/stroke")
     if fillBlank:
         for i in range(len_names):
             if len(names[i]) == 2 and names[i][1] not in ["　"," "]:
                 names[i] = names[i][0] + "　"+names[i][1]
     cellsPerRow=int(cellsPerRow)
-    rows = math.ceil(len_names/cellsPerRow )
     result=[]
     if wrapByRow:
+        (rows, cellsInLastCol) = divmod(len_names,cellsPerRow)
         for  i in range(rows):
-            if i< rows-1:
-                result.append([names[i*cellsPerRow+j] for j in range(cellsPerRow)])
-            else:
-                result.append([names[i*cellsPerRow+j] for j in range(len_names-i*cellsPerRow)])  # noqa: E501
+            result.append([names[i*cellsPerRow+j] for j in range(cellsPerRow)])
+        if cellsInLastCol > 0:
+            result.append(names[-cellsInLastCol:])  # noqa: E501
+        if cellsInLastCol > 0:
+            result[rows].extend([None]*(cellsPerRow-cellsInLastCol))
     else:
-        cellsInLastCol = len_names - (cellsPerRow-1)* rows
-        for  i in range(rows):
-            result.append([])
-            
-        if cellsInLastCol == cellsPerRow:
+        (rows, mod) = divmod(len_names,cellsPerRow)
+        if mod == 0:
+            for  i in range(rows):
+                result.append([])
             for c in range(cellsPerRow):
                 for r in range(rows):
                     result[r].append(names[c*rows+r])
         else:
+            rows = math.ceil(len_names/cellsPerRow)
+            while (cellsPerRow-1)*rows > len_names:
+                cellsPerRow-=1
+                rows = math.ceil(len_names/cellsPerRow)
+            for  i in range(rows):
+                result.append([])
             for c in range(cellsPerRow-1):
                 for r in range(rows):
                     result[r].append(names[c*rows+r])
-            for r in range(cellsInLastCol): # 最后一列的数据
+            mod = len_names - (cellsPerRow-1)*rows
+            for r in range(mod): # 最后一列的数据
                 result[r].append(names[(cellsPerRow-1)*rows+r])
-
-    for row in result:
-        if len(row)<cellsPerRow:
-            row.extend([None]*(cellsPerRow-len(row)))
+            for r in range(mod,rows):
+                result[r].extend([None])
     return result
 
 @xw.func
