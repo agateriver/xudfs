@@ -413,9 +413,9 @@ def xxSortCNamesViaSQLServerH(names,ordyBy = "pinyin",sqlConStr="Driver={SQL Ser
     s="""'),('""".join(names)
     collate = ordyBy
     if ordyBy == "pinyin":
-        collate = "Chinese_Simplified_Pinyin_100_CI_AS_KS_WS"
+        collate = "Chinese_Simplified_Pinyin_100_CI_AS_KS_WS_SC"
     if ordyBy in ["bihua","stroke"] :
-        collate =  "Chinese_Simplified_Stroke_Order_100_CS_AS_KS_WS"
+        collate =  "Chinese_Simplified_Stroke_Order_100_CS_AS_KS_WS_SC"
     query = f"""SELECT C FROM (VALUES ('{s}')) as T(C) order by C collate {collate}"""  # noqa: E501
     cursor.execute(query)
     result=[]
@@ -544,14 +544,40 @@ def xxColumnIndexToLetter(col_index):
 
 @xw.func
 @xw.arg("begin",doc=": 千字文起始句数。")
-@xw.arg("last",doc=": 千字文结束句数。")
-def xxQianZiWen(begin:int =1,last:int=125)->str:
+@xw.arg("total",doc=": 总句数。")
+def xxQianZiWen(begin:int =1,total:int=125)->str:
     """千字文字符串生成"""
+    if int(begin)==1 and int(total)==125:
+        return __kilos__
     s = int(begin) if int(begin) < 125 else 125
-    # if s < 1:
-    #     s = 1
-    e = int(last) if int(last) < 125 else 125
-    return __kilos__[(s-1)*10:e*10]
+    t = int(total)
+    div,mod = divmod(s+t-1,125)
+    if div==0:
+        return __kilos__[(s-1)*10:((s-1)+t)*10]
+    elif div==1 and mod==0:
+        return __kilos__[(s-1)*10:]
+    else:
+        interm= div*__kilos__
+        s1 = __kilos__[(s-1)*10:]
+        s2 = __kilos__[:(mod)*10]
+        return s1+interm+s2
+
+@xw.func
+@xw.arg("dms",doc=": 度分秒字符串。")
+def xxDMS2DEC(dms:str)->float:
+    """将度分秒转换为十进制度数"""
+    if not dms:
+        return 0.
+    if not isinstance(dms,str):
+        return 0.
+    if re.match(r"(-?\d+)°(\d+)'(\d+\.?\d*)\"",dms):
+            x = re.split(r'''[°'"]''',dms)
+            y = int(x[0])
+            z = int(x[1])
+            m = float(x[2])
+            return y+z/60+m/3600
+    else:
+        return 0.
 
 
 # for debug
