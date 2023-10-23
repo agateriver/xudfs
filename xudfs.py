@@ -605,6 +605,16 @@ def xxReadDBF(path: str,encoding:str = 'UTF8')->str:
     return pd.DataFrame(iter(table))
 
 
+@xw.func(volatile=True)
+@xw.arg('table', pd.DataFrame, index=False, header=True)
+@xw.arg("columns",doc=": 要相加的列名，多个列名用逗号分隔")
+@xw.arg("condition_for_row",doc=": 用于选取某唯一行的条件")
+@xw.ret(index=False, header=False)
+def xxSumTableColumns(table,columns: str,condition_for_row: str=""):
+    """按指定的条件获取某行指定列的值之和"""
+    _columns = re.split(r'''[,，]\s*''',columns)
+    return table.query(condition_for_row)[_columns].sum(axis=1).iloc[0]
+
 # for debug
 if __name__ == "__main__":
     xw.serve()
