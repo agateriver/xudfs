@@ -14,6 +14,7 @@ import pypinyin as py
 import chinese_stroke_sorting as css
 import pyodbc
 from dbfread import DBF
+pd.options.future.infer_string = True # for pnadas>2.1
 
 __password_chars__ = list(
     set(string.ascii_letters  + string.digits).difference(
@@ -33,11 +34,11 @@ def get_rand_password(digits=8,include_punctuation=False):
     return "".join(choice(__password_chars__) for x in range(0, digits))
 
 @xw.func
-@xw.arg("digits", doc=": 密码位数，默认为8")
+@xw.arg("digits", doc=": 密码位数，默认为8",numbers=int)
 @xw.arg("include_punctuation", doc=": 是否包含标点符号，默认为False")
 def xxRandPassword(digits =8, include_punctuation=False):
     """返回随机密码"""
-    return get_rand_password(int(digits),include_punctuation)
+    return get_rand_password(digits,include_punctuation)
 
 @xw.func
 @xw.arg("number_", doc=": 待转换的值")
@@ -303,57 +304,57 @@ def xxHStack(*ranges):
     return np.hstack(ranges)
 
 @xw.func
-@xw.arg("n", doc=": 生成的假人名数")
+@xw.arg("n", doc=": 生成的假人名数",numbers=int)
 @xw.arg("locale", default ="zh_CN",doc=": locale,默认zh_CN")
 def xxFakePersonName(n,locale ="zh_CN"):
     """Fake Name"""
     fake = Faker(locale)
-    return [[fake.name()] for i in range(int(n))]
+    return [[fake.name()] for i in range(n)]
 
 @xw.func
-@xw.arg("n",doc=": 生成的假身份证数")
+@xw.arg("n",doc=": 生成的假身份证数",numbers=int)
 @xw.arg("locale", default ="zh_CN",doc=": locale,默认zh_CN")
 def xxFakeSSN(n,locale ="zh_CN"):
     """Fake Name"""
     fake = Faker(locale)
-    return [[fake.ssn()] for i in range(int(n))]
+    return [[fake.ssn()] for i in range(n)]
 
 @xw.func
-@xw.arg("n",doc=": 生成的假邮编数")
+@xw.arg("n",doc=": 生成的假邮编数",numbers=int)
 @xw.arg("locale", default ="zh_CN",doc=": locale,默认zh_CN")
 def xxFakePostcode(n,locale ="zh_CN"):
     """Fake Postcode"""
     fake = Faker(locale)
-    return [[fake.postcode()] for i in range(int(n))]
+    return [[fake.postcode()] for i in range(n)]
 
 @xw.func
-@xw.arg("n",doc=": 生成的假公司名数")
+@xw.arg("n",doc=": 生成的假公司名数",numbers=int)
 @xw.arg("locale", default ="zh_CN",doc=": locale,默认zh_CN")
 def xxFakeCommany(n,locale ="zh_CN"):
     """Fake Company"""
     fake = Faker(locale)
-    return [[fake.company()] for i in range(int(n))]
+    return [[fake.company()] for i in range(n)]
 
 @xw.func
-@xw.arg("n",doc=": 生成的假地址数")
+@xw.arg("n",doc=": 生成的假地址数",numbers=int)
 @xw.arg("locale", default ="zh_CN",doc=": locale,默认zh_CN")
 def xxFakeAddress(n,locale ="zh_CN"):
     """Fake Address"""
     fake = Faker(locale)
-    return [[fake.address()] for i in range(int(n))]
+    return [[fake.address()] for i in range(n)]
 
 @xw.func
-@xw.arg("n",doc=": 生成的电话号码数")
+@xw.arg("n",doc=": 生成的电话号码数",numbers=int)
 @xw.arg("locale", default ="zh_CN",doc=": localee,默认zh_CN")
 def xxFakePhoneNumber(n,locale ="zh_CN"):
     """Fake Phone Number"""
     fake = Faker(locale)
-    return [[fake.phone_number()] for i in range(int(n))]
+    return [[fake.phone_number()] for i in range(n)]
 
 
 @xw.func
 @xw.arg("names",doc=": 表示人名的列数据")
-@xw.arg("cellsPerRow",default = 5, doc=": 转换后每行的单元格数")
+@xw.arg("cellsPerRow",default = 5, doc=": 转换后每行的单元格数",numbers=int)
 @xw.arg("wrapByRow",default = True, doc=": 转换后的数据是按行折返还是按列折返,TRUE or FALSE,默认TRUE按行折返")
 @xw.arg("fillBlank",default = True, doc=": 转换后对两字名是否填充空格补全为三字宽度,TRUE or FALSE,默认TRUE填充")
 @xw.arg("ordyBy",default = "pinyin", doc=": 转换后的数据是按pinyin或是stroke排序,默认按pinyin排序")
@@ -370,7 +371,6 @@ def xxWrapNames(names, cellsPerRow=5, wrapByRow=True,fillBlank=True,ordyBy="piny
         for i in range(len_names):
             if len(names[i]) == 2 and names[i][1] not in ["　"," "]:
                 names[i] = names[i][0] + "　"+names[i][1]
-    cellsPerRow=int(cellsPerRow)
     result=[]
     if wrapByRow:
         (rows, cellsInLastCol) = divmod(len_names,cellsPerRow)
@@ -405,11 +405,11 @@ def xxWrapNames(names, cellsPerRow=5, wrapByRow=True,fillBlank=True,ordyBy="piny
                 result[r].extend([None])
     return result
 
-@xw.func
+@xw.func(call_in_wizard=False)
 @xw.arg("names",doc=": 表示人名的列或列数据")
 @xw.arg("ordyBy",default = "pinyin", doc=": 转换后的数据是按pinyin或是stroke排序,默认按pinyin排序")
-@xw.arg("sqlConStr",default = "Driver={SQL Server};Server=.;Database=msdb;Trusted_Connection=yes", doc=": SQLServer 连接字符串，默认为本机信任连接")
-def xxSortCNamesViaSQLServerH(names,ordyBy = "pinyin",sqlConStr="Driver={SQL Server};Server=.;Database=msdb;Trusted_Connection=yes"):
+@xw.arg("sqlConStr",default = "Driver={SQL Server};Server=.;Trusted_Connection=yes", doc=": SQLServer 连接字符串，默认为本机信任连接")
+def xxSortCNamesViaSQLServerH(names,ordyBy = "pinyin",sqlConStr="Driver={SQL Server};Server=.;Trusted_Connection=yes"):
     """通过SQL Server的排序规则将一行/列中文人名转换为按拼音或笔画排序,可指定排序规则实现其它排序""" 
     conn = pyodbc.connect(sqlConStr)
     cursor = conn.cursor()
@@ -426,13 +426,13 @@ def xxSortCNamesViaSQLServerH(names,ordyBy = "pinyin",sqlConStr="Driver={SQL Ser
         result.append(row[0])
     return result
 
-@xw.func
+@xw.func(call_in_wizard=False)
 @xw.arg("names",doc=": 表示人名的列或列数据")
 @xw.arg("ordyBy",default = "pinyin", doc=": 转换后的数据是按pinyin或是stroke排序,默认按pinyin排序")
-@xw.arg("sqlConStr",default = "Driver={SQL Server};Server=.;Database=msdb;Trusted_Connection=yes", doc=": SQLServer 连接字符串，默认为本机信任连接")
-def xxSortCNamesViaSQLServerV(names,ordyBy = "pinyin",sqlConStr="Driver={SQL Server};Server=.;Database=msdb;Trusted_Connection=yes"):
+@xw.arg("sqlConStr",default = "Driver={SQL Server};Server=.;Trusted_Connection=yes", doc=": SQLServer 连接字符串，默认为本机信任连接")
+def xxSortCNamesViaSQLServerV(names,ordyBy = "pinyin",sqlConStr="Driver={SQL Server};Server=.;Trusted_Connection=yes"):
     """通过SQL Server的排序规则将一行/列中文人名按拼音或笔画排序,可指定其它排序规则实现更多排序""" 
-    conn = pyodbc.connect(sqlConStr)
+    conn = pyodbc.connect(sqlConStr, unicode_results=True,timeout=5)
     cursor = conn.cursor()
     s="""'),('""".join(names)
     collate = ordyBy
@@ -448,15 +448,15 @@ def xxSortCNamesViaSQLServerV(names,ordyBy = "pinyin",sqlConStr="Driver={SQL Ser
     return result
 
 
-@xw.func
+@xw.func(call_in_wizard=False)
 @xw.arg("data",doc=": 待随机分组的行或列数据")
-@xw.arg("n", doc=": 分成多少组")
+@xw.arg("n", doc=": 分成多少组",numbers=int)
 def xxRandomGroup(data, n):
     """将数据均分成n组,每组一列"""
     def chunks(data, n):
         import random
         random.shuffle(data)  # 随机洗牌
-        int_part, rem_part = divmod(len(data), int(n))  
+        int_part, rem_part = divmod(len(data), n)  
         i = 0
         while i < len(data):
             if rem_part > 0: #如若总样本不是是分组数的整数倍，则前几组多分一个
@@ -466,35 +466,35 @@ def xxRandomGroup(data, n):
             else: # 如若总样本正好是分组数的整数倍则均分
                 yield data[i:i + int_part]
                 i += int_part     
-    result = list(chunks(data, int(n)))
-    int_part, rem_part = divmod(len(data), int(n))  
+    result = list(chunks(data, n))
+    int_part, rem_part = divmod(len(data), n)  
     if rem_part>0: # 补齐为矩阵
-        for i in range(rem_part,int(n)):
+        for i in range(rem_part,n):
             result[i].append(None)
     transposed = list(map(list, zip(*result))) # 转置为每列一组
     return transposed
     
-@xw.func
+@xw.func(call_in_wizard=False)
 @xw.arg("data",ndim=2,doc=":样本总体，行、列或矩阵")
-@xw.arg("n", doc=": 抽样数")
+@xw.arg("n", doc=": 抽样数",numbers=int)
 def xxRandomSampleH(data, n):
     """从总体中抽n个样本"""
     import random
     result = []
     xdata=[j for i in data for j in i]
-    for i in random.sample(xdata, int(n)):
+    for i in random.sample(xdata, n):
         result.append(i)
     return result
 
-@xw.func
+@xw.func(call_in_wizard=False)
 @xw.arg("data",ndim=2,doc=":样本总体,行、列或矩阵")
-@xw.arg("n", doc=": 抽样数")
+@xw.arg("n", doc=": 抽样数",numbers=int)
 def xxRandomSampleV(data, n):
     """从总体中抽n个样本"""
     import random
     result = []
     xdata=[j for i in data for j in i]
-    for i in random.sample(xdata, int(n)):
+    for i in random.sample(xdata, n):
         result.append([i,])
     return result
     
@@ -512,7 +512,7 @@ def xxLookupMultiple(lookup_value, lookup_array,return_array):
             result.append(flatten_return_array[idx])
     return result
 
-@xw.func
+@xw.func(call_in_wizard=False)
 @xw.arg("data",convert=pd.DataFrame, index=0, ndim=2,doc=": 待查询的数据区，第一行为列名")
 @xw.arg("expr",doc=": 查询表达式，写法参见pandas文档。如：'A > 0 and `B 1` < 0' and C.str.startswith('a') and D in [1,2,3]'")
 @xw.ret(index=False)
@@ -532,31 +532,29 @@ def xxColumnIndexToNumber(col_index):
     return num
 
 @xw.func
-@xw.arg("col_index",doc=": 以数字表示的列索引")
+@xw.arg("col_index",doc=": 以数字表示的列索引",numbers=int)
 def xxColumnIndexToLetter(col_index):
     """将以数字表示的列索引转换为字母表示"""
     letter = ""
-    _col_index = int(col_index)
-    while _col_index > 0:
-        remainder = _col_index % 26
+    while col_index > 0:
+        remainder = col_index % 26
         if remainder == 0:
             remainder = 26
         letter += chr(remainder + 64)
-        _col_index = (_col_index - remainder) // 26
+        col_index = (col_index - remainder) // 26
     return letter[::-1]
 
 @xw.func
-@xw.arg("begin",doc=": 千字文起始句数。")
-@xw.arg("total",doc=": 总句数。")
+@xw.arg("begin",doc=": 千字文起始句数。",numbers=int)
+@xw.arg("total",doc=": 总句数。",numbers=int)
 def xxQianZiWen(begin:int =1,total:int=125)->str:
     """千字文字符串生成"""
-    if int(begin)==1 and int(total)==125:
+    if begin==1 and total==125:
         return __kilos__
-    s = int(begin) if int(begin) < 125 else 125
-    t = int(total)
-    div,mod = divmod(s+t-1,125)
+    s = begin if begin < 125 else 125
+    div,mod = divmod(s+total-1,125)
     if div==0:
-        return __kilos__[(s-1)*10:((s-1)+t)*10]
+        return __kilos__[(s-1)*10:((s-1)+total)*10]
     elif div==1 and mod==0:
         return __kilos__[(s-1)*10:]
     else:
@@ -596,7 +594,7 @@ def xxDLTBFieldsReanme(field: str)->str:
     else:
         return field 
     
-@xw.func
+@xw.func(call_in_wizard=False)
 @xw.arg("path",doc=": DBF文件路径。")
 @xw.arg("encoding",doc=": DBF文件编码，默认为UTF8。")
 def xxReadDBF(path: str,encoding:str = 'UTF8')->str:
@@ -605,7 +603,7 @@ def xxReadDBF(path: str,encoding:str = 'UTF8')->str:
     return pd.DataFrame(iter(table))
 
 
-@xw.func(volatile=True)
+@xw.func(call_in_wizard=False)
 @xw.arg('table', pd.DataFrame, index=False, header=True)
 @xw.arg("columns",doc=": 要相加的列名，多个列名用逗号分隔")
 @xw.arg("condition_for_row",doc=": 用于选取某唯一行的条件")
@@ -614,6 +612,30 @@ def xxSumTableColumns(table,columns: str,condition_for_row: str=""):
     """按指定的条件获取某行指定列的值之和"""
     _columns = re.split(r'''[,，]\s*''',columns)
     return table.query(condition_for_row)[_columns].sum(axis=1).iloc[0]
+
+@xw.func(call_in_wizard=False)
+@xw.arg('table', pd.DataFrame, index=False, header=True)
+@xw.arg("columns",doc=": 要相加的列名，多个列名用逗号分隔")
+@xw.arg("condition_for_row",doc=": 用于选取某唯一行的条件")
+@xw.ret(index=False, header=False)
+def xxSumTableColumnsAsMu(table,columns: str,condition_for_row: str=""):
+    """按指定的条件获取某行指定列的值之和"""
+    _columns = re.split(r'''[,，]\s*''',columns)
+    return table.query(condition_for_row)[_columns].sum(axis=1).iloc[0]*3/2000
+
+@xw.func
+@xw.arg('tables', pd.DataFrame, index=False, header=True,doc=": 指定要合并的表(Table)")
+@xw.ret(index=False, header=True,expand='table')
+def xxConcatTables(*tables):
+    """纵向合并多个表(Table)，保留所有表的列"""
+    return pd.concat(tables,ignore_index=True,axis=0)
+
+
+@xw.func
+@xw.arg('sq_meters', doc=": 平方米数")
+def xxSqMetersToMu(sq_meters: float)->float:
+    """将平方米转换为亩"""
+    return sq_meters*3./2000
 
 # for debug
 if __name__ == "__main__":
