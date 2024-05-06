@@ -515,10 +515,14 @@ def xxLookupMultiple(lookup_value, lookup_array,return_array):
 @xw.func(call_in_wizard=False)
 @xw.arg("data",convert=pd.DataFrame, index=0, ndim=2,doc=": 待查询的数据区，第一行为列名")
 @xw.arg("expr",doc=": 查询表达式，写法参见pandas文档。如：'A > 0 and `B 1` < 0' and C.str.startswith('a') and D in [1,2,3]'")
-@xw.ret(index=False)
-def xxPandasQuery(data, expr):
+@xw.arg("cols",doc=": 返回各列的列名，多个列名用逗号分隔,默认为空返回全部列")
+@xw.ret(index=False, header=True)
+def xxPandasQuery(data, expr, cols=None):
     """pandas.DataFrame.query()的封装。"""
-    qry = data.query(expr, inplace=False)
+    if cols:
+        qry = data.query(expr, inplace=False)[cols.split(",")]
+    else:   
+        qry = data.query(expr, inplace=False)
     return qry
 
 @xw.func
@@ -636,6 +640,15 @@ def xxConcatTables(*tables):
 def xxSqMetersToMu(sq_meters: float)->float:
     """将平方米转换为亩"""
     return sq_meters*3./2000
+
+
+@xw.func
+@xw.arg('rng', ndim=2, doc=": 选定的范围(Range)")
+@xw.ret(expand='table')
+def xxFlatten(rng):
+    """将二维数组转换为一维数组"""
+    result = [cell for row in rng for cell in row]
+    return [[cell] for cell in result]
 
 # for debug
 if __name__ == "__main__":
