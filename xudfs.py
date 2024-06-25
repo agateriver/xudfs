@@ -119,17 +119,27 @@ def xxRegexSub(text, pattern, repl):
 @xw.func
 @xw.arg("text", doc=": 待分割的文本")
 @xw.arg("sep_pattern", doc=": 分隔符的正则表达式")
-def xxRegexSplitH(text, sep_pattern):
+@xw.arg("item", doc=": 返回数组的第几项(1-based)。默认为0则返回所有项",default=0,numbers=int)
+def xxRegexSplitH(text, sep_pattern,item=0):
     """用正则表达式分割字符串，结果横向显示"""
-    return re.split(sep_pattern, text)
+    result = re.split(sep_pattern, text)
+    if item == 0:
+        return result
+    else:
+        return result[item-1]
 
 
 @xw.func
 @xw.arg("text", doc=": 待分割的文本")
 @xw.arg("sep_pattern", doc=": 分隔符的正则表达式")
-def xxRegexSplitV(text, sep_pattern):
+@xw.arg("item", doc=": 返回数组的第几项(1-based)。默认为0则返回所有项",default=0,numbers=int)
+def xxRegexSplitV(text, sep_pattern, item=0):
     """用正则表达式分割字符串，结果纵向显示"""
-    return [[s] for s in xxRegexSplitH(text, sep_pattern)]
+    result = [[s] for s in xxRegexSplitH(text, sep_pattern)]
+    if item == 0:
+        return result
+    else:
+        return result[item-1][0]
 
 
 @xw.func
@@ -447,6 +457,21 @@ def xxSortCNamesViaSQLServerV(names,ordyBy = "pinyin",sqlConStr="Driver={SQL Ser
         result.append([row[0],])  
     return result
 
+@xw.func
+@xw.arg("names",doc=": 要排序的人名区域")
+@xw.arg("sa_pwd", doc=": SQLServer sa用户密码")
+@xw.arg("server",default = ".", doc=": SqlServer 服务器实例地址（如 127.0.0.1\mssql1,61433），默认为本机")
+def xxSortCNamesByBihuaV(names, sa_pwd ,server="127.0.0.1\mssql1,61433",):
+    """按笔画排序"""
+    return xxSortCNamesViaSQLServerV(names,ordyBy = "bihua",sqlConStr=f"Driver={{SQL Server}};Server={server};UID=sa;PWD={sa_pwd}")
+
+@xw.func
+@xw.arg("names",doc=": 要排序的人名区域")
+@xw.arg("sa_pwd", doc=": SQLServer sa用户密码")
+@xw.arg("server",default = ".", doc=": SqlServer 服务器实例地址（如 127.0.0.1\mssql1,61433），默认为本机")
+def xxSortCNamesByPinyinV(names, sa_pwd ,server="127.0.0.1\mssql1,61433",):
+    """按笔画排序"""
+    return xxSortCNamesViaSQLServerV(names,ordyBy = "pinyin",sqlConStr=f"Driver={{SQL Server}};Server={server};UID=sa;PWD={sa_pwd}")
 
 @xw.func(call_in_wizard=False)
 @xw.arg("data",doc=": 待随机分组的行或列数据")
@@ -665,6 +690,13 @@ def xxFlatten(rng):
     """将二维数组转换为一维数组"""
     result = [cell for row in rng for cell in row]
     return [[cell] for cell in result]
+
+@xw.func
+@xw.arg('hanzi',  doc=": 汉字")
+def xxPinyinInitial(hanzi):
+    """汉字拼音首字母"""
+    return py.pinyin(hanzi,style=py.Style.INITIALS,strict=False)
+
 
 # for debug
 if __name__ == "__main__":
