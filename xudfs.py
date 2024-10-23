@@ -5,6 +5,7 @@
 from random import choice
 import string
 import xlwings as xw
+from typing import Annotated # noqa: F401
 import pandas as pd  # noqa: F401
 import numpy as np
 from faker import Faker
@@ -128,7 +129,20 @@ def xxRegexSplitH(text, sep_pattern,item=0):
     else:
         return result[item-1]
 
+@xw.func
+@xw.arg("text", doc=": 待分割的文本")
+@xw.arg("pattern", doc=": 分隔符的正则表达式")
+@xw.arg("group", doc=": 返回第几个匹配组。默认为1。如果用命名组，也可输入组名。",default=1,numbers=int)
+def xxRegexExtract(text, pattern,group=1):
+    """用正则表达式分割字符串，结果横向显示"""
+    reobj = re.compile(pattern, re.IGNORECASE | re.DOTALL | re.MULTILINE)
+    match = reobj.search(text)
+    if match:
+        return match.group(group)
+    else:
+        return ""
 
+        
 @xw.func
 @xw.arg("text", doc=": 待分割的文本")
 @xw.arg("sep_pattern", doc=": 分隔符的正则表达式")

@@ -1,0 +1,10 @@
+chinese-stroke-sorting
+dbfread
+Faker
+numpy
+pandas
+pyarrow
+pyodbc
+pypinyin
+xlrd
+xlwings
