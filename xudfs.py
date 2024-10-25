@@ -714,8 +714,14 @@ def xxPinyinInitial(hanzi):
 @xw.func
 @xw.arg('s',  doc=": 英文字符串")
 def xxCaptalizeEveryWord(s: str):
-    """汉字拼音首字母"""
+    """将英文字符串中的每个单词首字母大写"""
     return ' '.join(word.capitalize() for word in s.split())
+
+@xw.func
+@xw.arg('s',  doc=": 英文字符串")
+def xxSnakeCase(s: str):
+    """将英文字符串转换为蛇形"""
+    return ''.join(word.capitalize() for word in re.split(r"[\s_]",s))
     
 # for debug
 if __name__ == "__main__":
