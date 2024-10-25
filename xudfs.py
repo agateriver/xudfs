@@ -707,19 +707,19 @@ def xxFlatten(rng):
 
 @xw.func
 @xw.arg('hanzi',  doc=": 汉字")
-def xxPinyinInitial(hanzi):
+def xxPinyinInitial(hanzi:str)->str:
     """汉字拼音首字母"""
     return py.pinyin(hanzi,style=py.Style.INITIALS,strict=False)
 
 @xw.func
 @xw.arg('s',  doc=": 英文字符串")
-def xxCaptalizeEveryWord(s: str):
+def xxCaptalizeEveryWord(s: str)->str:
     """将英文字符串中的每个单词首字母大写"""
     return ' '.join(word.capitalize() for word in s.split())
 
 @xw.func
 @xw.arg('s',  doc=": 英文字符串")
-def xxSnakeCase(s: str):
+def xxSnakeCase(s: str)->str:
     """将英文字符串转换为蛇形"""
     return ''.join(word.capitalize() for word in re.split(r"[\s_]",s))
     
