@@ -711,7 +711,12 @@ def xxPinyinInitial(hanzi):
     """汉字拼音首字母"""
     return py.pinyin(hanzi,style=py.Style.INITIALS,strict=False)
 
-
+@xw.func
+@xw.arg('s',  doc=": 英文字符串")
+def xxCaptalizeEveryWord(s: str):
+    """汉字拼音首字母"""
+    return ' '.join(word.capitalize() for word in s.split())
+    
 # for debug
 if __name__ == "__main__":
     xw.serve()
