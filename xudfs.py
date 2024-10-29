@@ -5,7 +5,6 @@
 from random import choice
 import string
 import xlwings as xw
-from typing import Annotated # noqa: F401
 import pandas as pd  # noqa: F401
 import numpy as np
 from faker import Faker
@@ -35,17 +34,17 @@ def get_rand_password(digits=8,include_punctuation=False):
     return "".join(choice(__password_chars__) for x in range(0, digits))
 
 @xw.func
-@xw.arg("digits", doc=": 密码位数，默认为8",numbers=int)
-@xw.arg("include_punctuation", doc=": 是否包含标点符号，默认为False")
+@xw.arg("digits", doc=": 密码位数，缺省为8",numbers=int)
+@xw.arg("include_punctuation", doc=": 是否包含标点符号，缺省为False")
 def xxRandPassword(digits =8, include_punctuation=False):
     """返回随机密码"""
     return get_rand_password(digits,include_punctuation)
 
 @xw.func
 @xw.arg("number_", doc=": 待转换的值")
-@xw.arg("is_int", doc=": 是否为整数，默认为True")
+@xw.arg("is_int", doc=": 是否为整数，缺省为True")
 def xxToText(number_, is_int=True):
-    """返回去除首尾指定字符的字符串，默认去除首位全角空格、半角空格及换行"""
+    """数值转换为文本"""
     if not isinstance(number_, str):
         if isinstance(is_int, bool) and is_int:
             return str(int(number_))
@@ -57,9 +56,9 @@ def xxToText(number_, is_int=True):
 
 @xw.func
 @xw.arg("text", doc=": 待转换的文本")
-@xw.arg("to_int", doc=": 是否转换为整数，默认为True")
+@xw.arg("to_int", doc=": 是否转换为整数，缺省为True")
 def xxToNumber(text, to_int=True):
-    """返回去除首尾指定字符的字符串，默认去除首位全角空格、半角空格及换行"""
+    """将文本转换位数值"""
     if isinstance(to_int, bool) and to_int:
         return int(text)
     else:
@@ -70,9 +69,9 @@ def xxToNumber(text, to_int=True):
 @xw.arg("text", doc=": 待修剪的文本")
 @xw.arg(
     "pattern",
-    doc=": 首尾要去除部分的正则表达式，默认为'　  \\r\\n' (0x3000,0x0020,0x00A0,\\r,\\n)")
+    doc=": 首尾要去除部分的正则表达式，缺省为'　  \\r\\n' (0x3000,0x0020,0x00A0,\\r,\\n)")
 def xxStringStrip(text, pattern="　  \r\n"):  # 三种空格(0x3000,0x0020,0x00A0)、换行
-    """修剪掉字符串首尾匹配指定模式的字符,默认去除首位全角和半角空格及换行"""
+    """修剪掉字符串首尾匹配指定模式的字符,缺省去除首位全角和半角空格及换行"""
     if isinstance(text, str) and text:
         return str.strip(text, pattern)
     else:
@@ -81,21 +80,18 @@ def xxStringStrip(text, pattern="　  \r\n"):  # 三种空格(0x3000,0x0020,0x0
 
 @xw.func
 @xw.arg("text", doc=": 待截取的文本")
-@xw.arg("start_", doc=": 开始位置, 默认=''")
-@xw.arg("end_", doc=": 结束位置, 默认=''")
-def xxStringSlice(text, start_="", end_=""):
+@xw.arg("start_", doc=": 开始位置, 1-based，缺省 = 1",numbers=int)
+@xw.arg("end_", doc=": 结束位置,1-based, 缺省 = len(text)",numbers=int)
+def xxStringSlice(text:str, start_:int =1, end_:int=None):  
     """返回起始范围内的子字串"""
-    if isinstance(text, str) and text:
-        if start_ == '' and end_ == '':
-            return text
-        elif end_ == '':
-            return text[int(start_):]
-        elif start_ == '':
-            return text[:int(end_)]
-        else:
-            return text[int(start_):int(end_)]
+    if start_<1:
+        raise "起始位置指定错误"
+    if end_ is not None:
+        if end_<start_:
+            raise "结束位置指定错误"
+        return text[(start_-1):(end_)]
     else:
-        return text
+        return text[(start_-1):]
 
 
 @xw.func
@@ -120,7 +116,7 @@ def xxRegexSub(text, pattern, repl):
 @xw.func
 @xw.arg("text", doc=": 待分割的文本")
 @xw.arg("sep_pattern", doc=": 分隔符的正则表达式")
-@xw.arg("item", doc=": 返回数组的第几项(1-based)。默认为0则返回所有项",default=0,numbers=int)
+@xw.arg("item", doc=": 返回数组的第几项(1-based)。缺省为0则返回所有项",default=0,numbers=int)
 def xxRegexSplitH(text, sep_pattern,item=0):
     """用正则表达式分割字符串，结果横向显示"""
     result = re.split(sep_pattern, text)
@@ -132,7 +128,7 @@ def xxRegexSplitH(text, sep_pattern,item=0):
 @xw.func
 @xw.arg("text", doc=": 待分割的文本")
 @xw.arg("pattern", doc=": 分隔符的正则表达式")
-@xw.arg("group", doc=": 返回第几个匹配组。默认为1。如果用命名组，也可输入组名。",default=1,numbers=int)
+@xw.arg("group", doc=": 返回第几个匹配组。缺省为1。如果用命名组，也可输入组名。",default=1,numbers=int)
 def xxRegexExtract(text, pattern,group=1):
     """用正则表达式分割字符串，结果横向显示"""
     reobj = re.compile(pattern, re.IGNORECASE | re.DOTALL | re.MULTILINE)
@@ -146,7 +142,7 @@ def xxRegexExtract(text, pattern,group=1):
 @xw.func
 @xw.arg("text", doc=": 待分割的文本")
 @xw.arg("sep_pattern", doc=": 分隔符的正则表达式")
-@xw.arg("item", doc=": 返回数组的第几项(1-based)。默认为0则返回所有项",default=0,numbers=int)
+@xw.arg("item", doc=": 返回数组的第几项(1-based)。缺省为0则返回所有项",default=0,numbers=int)
 def xxRegexSplitV(text, sep_pattern, item=0):
     """用正则表达式分割字符串，结果纵向显示"""
     result = [[s] for s in xxRegexSplitH(text, sep_pattern)]
@@ -158,7 +154,7 @@ def xxRegexSplitV(text, sep_pattern, item=0):
 
 @xw.func
 @xw.arg("range_", ndim=2, doc=": 选定的范围(Range)")
-@xw.arg("sep", doc=": 分隔符，默认为','")
+@xw.arg("sep", doc=": 分隔符，缺省为','")
 def xxJoin(range_, sep=","):
     """将选定范围内的文本用指定的分隔符连接起来"""
     cells = [cell for row in range_ for cell in row]
@@ -329,7 +325,7 @@ def xxHStack(*ranges):
 
 @xw.func
 @xw.arg("n", doc=": 生成的假人名数",numbers=int)
-@xw.arg("locale", default ="zh_CN",doc=": locale,默认zh_CN")
+@xw.arg("locale", default ="zh_CN",doc=": locale,缺省zh_CN")
 def xxFakePersonName(n,locale ="zh_CN"):
     """Fake Name"""
     fake = Faker(locale)
@@ -337,7 +333,7 @@ def xxFakePersonName(n,locale ="zh_CN"):
 
 @xw.func
 @xw.arg("n",doc=": 生成的假身份证数",numbers=int)
-@xw.arg("locale", default ="zh_CN",doc=": locale,默认zh_CN")
+@xw.arg("locale", default ="zh_CN",doc=": locale,缺省zh_CN")
 def xxFakeSSN(n,locale ="zh_CN"):
     """Fake Name"""
     fake = Faker(locale)
@@ -345,7 +341,7 @@ def xxFakeSSN(n,locale ="zh_CN"):
 
 @xw.func
 @xw.arg("n",doc=": 生成的假邮编数",numbers=int)
-@xw.arg("locale", default ="zh_CN",doc=": locale,默认zh_CN")
+@xw.arg("locale", default ="zh_CN",doc=": locale,缺省zh_CN")
 def xxFakePostcode(n,locale ="zh_CN"):
     """Fake Postcode"""
     fake = Faker(locale)
@@ -353,7 +349,7 @@ def xxFakePostcode(n,locale ="zh_CN"):
 
 @xw.func
 @xw.arg("n",doc=": 生成的假公司名数",numbers=int)
-@xw.arg("locale", default ="zh_CN",doc=": locale,默认zh_CN")
+@xw.arg("locale", default ="zh_CN",doc=": locale,缺省zh_CN")
 def xxFakeCommany(n,locale ="zh_CN"):
     """Fake Company"""
     fake = Faker(locale)
@@ -361,7 +357,7 @@ def xxFakeCommany(n,locale ="zh_CN"):
 
 @xw.func
 @xw.arg("n",doc=": 生成的假地址数",numbers=int)
-@xw.arg("locale", default ="zh_CN",doc=": locale,默认zh_CN")
+@xw.arg("locale", default ="zh_CN",doc=": locale,缺省zh_CN")
 def xxFakeAddress(n,locale ="zh_CN"):
     """Fake Address"""
     fake = Faker(locale)
@@ -369,7 +365,7 @@ def xxFakeAddress(n,locale ="zh_CN"):
 
 @xw.func
 @xw.arg("n",doc=": 生成的电话号码数",numbers=int)
-@xw.arg("locale", default ="zh_CN",doc=": localee,默认zh_CN")
+@xw.arg("locale", default ="zh_CN",doc=": localee,缺省zh_CN")
 def xxFakePhoneNumber(n,locale ="zh_CN"):
     """Fake Phone Number"""
     fake = Faker(locale)
@@ -379,9 +375,9 @@ def xxFakePhoneNumber(n,locale ="zh_CN"):
 @xw.func
 @xw.arg("names",doc=": 表示人名的列数据")
 @xw.arg("cellsPerRow",default = 5, doc=": 转换后每行的单元格数",numbers=int)
-@xw.arg("wrapByRow",default = True, doc=": 转换后的数据是按行折返还是按列折返,TRUE or FALSE,默认TRUE按行折返")
-@xw.arg("fillBlank",default = True, doc=": 转换后对两字名是否填充空格补全为三字宽度,TRUE or FALSE,默认TRUE填充")
-@xw.arg("ordyBy",default = "pinyin", doc=": 转换后的数据是按pinyin或是stroke排序,默认按pinyin排序")
+@xw.arg("wrapByRow",default = True, doc=": 转换后的数据是按行折返还是按列折返,TRUE or FALSE,缺省TRUE按行折返")
+@xw.arg("fillBlank",default = True, doc=": 转换后对两字名是否填充空格补全为三字宽度,TRUE or FALSE,缺省TRUE填充")
+@xw.arg("ordyBy",default = "pinyin", doc=": 转换后的数据是按pinyin或是stroke排序,缺省按pinyin排序")
 def xxWrapNames(names, cellsPerRow=5, wrapByRow=True,fillBlank=True,ordyBy="pinyin"):
     """将一行/列中文人名转换为按拼音或笔画排序的矩阵"""
     len_names = len(names)
@@ -431,8 +427,8 @@ def xxWrapNames(names, cellsPerRow=5, wrapByRow=True,fillBlank=True,ordyBy="piny
 
 @xw.func(call_in_wizard=False)
 @xw.arg("names",doc=": 表示人名的列或列数据")
-@xw.arg("ordyBy",default = "pinyin", doc=": 转换后的数据是按pinyin或是stroke排序,默认按pinyin排序")
-@xw.arg("sqlConStr",default = "Driver={SQL Server};Server=.;Trusted_Connection=yes", doc=": SQLServer 连接字符串，默认为本机信任连接")
+@xw.arg("ordyBy",default = "pinyin", doc=": 转换后的数据是按pinyin或是stroke排序,缺省按pinyin排序")
+@xw.arg("sqlConStr",default = "Driver={SQL Server};Server=.;Trusted_Connection=yes", doc=": SQLServer 连接字符串，缺省为本机信任连接")
 def xxSortCNamesViaSQLServerH(names,ordyBy = "pinyin",sqlConStr="Driver={SQL Server};Server=.;Trusted_Connection=yes"):
     """通过SQL Server的排序规则将一行/列中文人名转换为按拼音或笔画排序,可指定排序规则实现其它排序""" 
     conn = pyodbc.connect(sqlConStr)
@@ -452,8 +448,8 @@ def xxSortCNamesViaSQLServerH(names,ordyBy = "pinyin",sqlConStr="Driver={SQL Ser
 
 @xw.func(call_in_wizard=False)
 @xw.arg("names",doc=": 表示人名的列或列数据")
-@xw.arg("ordyBy",default = "pinyin", doc=": 转换后的数据是按pinyin或是stroke排序,默认按pinyin排序")
-@xw.arg("sqlConStr",default = "Driver={SQL Server};Server=.;Trusted_Connection=yes", doc=": SQLServer 连接字符串，默认为本机信任连接")
+@xw.arg("ordyBy",default = "pinyin", doc=": 转换后的数据是按pinyin或是stroke排序,缺省按pinyin排序")
+@xw.arg("sqlConStr",default = "Driver={SQL Server};Server=.;Trusted_Connection=yes", doc=": SQLServer 连接字符串，缺省为本机信任连接")
 def xxSortCNamesViaSQLServerV(names,ordyBy = "pinyin",sqlConStr="Driver={SQL Server};Server=.;Trusted_Connection=yes"):
     """通过SQL Server的排序规则将一行/列中文人名按拼音或笔画排序,可指定其它排序规则实现更多排序""" 
     conn = pyodbc.connect(sqlConStr, unicode_results=True,timeout=5)
@@ -474,16 +470,16 @@ def xxSortCNamesViaSQLServerV(names,ordyBy = "pinyin",sqlConStr="Driver={SQL Ser
 @xw.func
 @xw.arg("names",doc=": 要排序的人名区域")
 @xw.arg("sa_pwd", doc=": SQLServer sa用户密码")
-@xw.arg("server",default = ".", doc=": SqlServer 服务器实例地址（如 127.0.0.1\mssql1,61433），默认为本机")
-def xxSortCNamesByBihuaV(names, sa_pwd ,server="127.0.0.1\mssql1,61433",):
+@xw.arg("server",default = ".", doc=": SqlServer 服务器实例地址（如 127.0.0.1\\mssql1,61433），缺省为本机")
+def xxSortCNamesByBihuaV(names, sa_pwd ,server="127.0.0.1\\mssql1,61433",):
     """按笔画排序"""
     return xxSortCNamesViaSQLServerV(names,ordyBy = "bihua",sqlConStr=f"Driver={{SQL Server}};Server={server};UID=sa;PWD={sa_pwd}")
 
 @xw.func
 @xw.arg("names",doc=": 要排序的人名区域")
 @xw.arg("sa_pwd", doc=": SQLServer sa用户密码")
-@xw.arg("server",default = ".", doc=": SqlServer 服务器实例地址（如 127.0.0.1\mssql1,61433），默认为本机")
-def xxSortCNamesByPinyinV(names, sa_pwd ,server="127.0.0.1\mssql1,61433",):
+@xw.arg("server",default = ".", doc=": SqlServer 服务器实例地址（如 127.0.0.1\\mssql1,61433），缺省为本机")
+def xxSortCNamesByPinyinV(names, sa_pwd ,server="127.0.0.1\\mssql1,61433",):
     """按笔画排序"""
     return xxSortCNamesViaSQLServerV(names,ordyBy = "pinyin",sqlConStr=f"Driver={{SQL Server}};Server={server};UID=sa;PWD={sa_pwd}")
 
@@ -554,10 +550,10 @@ def xxLookupMultiple(lookup_value, lookup_array,return_array):
 @xw.func(call_in_wizard=True)
 @xw.arg("data",convert=pd.DataFrame, index=0, ndim=2,doc=": 待查询的数据区，第一行为列名")
 @xw.arg("expr",doc=": 查询表达式，写法参见pandas文档。如：'A > 0 and `B 1` < 0' and C.str.startswith('a') and D in [1,2,3]'")
-@xw.arg("cols",doc=": 返回各列的列名，多个列名用逗号分隔,默认为空返回全部列")
-@xw.arg("sorted_by",doc=": 按某列排序，默认为空")
-@xw.arg("ascending",doc=": 是否升序，默认为True")
-@xw.arg("headers",doc=": 是否返回列名，默认为TRUE")
+@xw.arg("cols",doc=": 返回各列的列名，多个列名用逗号分隔,缺省为空返回全部列")
+@xw.arg("sorted_by",doc=": 按某列排序，缺省为空")
+@xw.arg("ascending",doc=": 是否升序，缺省为True")
+@xw.arg("headers",doc=": 是否返回列名，缺省为TRUE")
 @xw.ret(index=False)
 def xxPandasQuery(data, expr, cols=None, sorted_by=None, ascending = True, headers=True):
     """pandas.DataFrame.query()的封装。"""
@@ -655,7 +651,7 @@ def xxDLTBFieldsReanme(field: str)->str:
     
 @xw.func(call_in_wizard=False)
 @xw.arg("path",doc=": DBF文件路径。")
-@xw.arg("encoding",doc=": DBF文件编码，默认为UTF8。")
+@xw.arg("encoding",doc=": DBF文件编码，缺省为UTF8。")
 def xxReadDBF(path: str,encoding:str = 'UTF8')->str:
     """读DBF文件"""
     table = DBF(path,encoding=encoding)
