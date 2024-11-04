@@ -296,7 +296,7 @@ def xxRegexSplitH(text, sep_pattern, item=0):
     numbers=int,
 )
 def xxRegexExtract(text:str, pattern:str, group:int =1):
-    """用正则表达式分割字符串，结果横向显示"""
+    """用带捕获组的正则表达式提取文本，结果横向显示"""
     reobj = re.compile(pattern, re.IGNORECASE | re.DOTALL | re.MULTILINE)
     if text:
         match = reobj.search(text)
