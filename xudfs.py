@@ -291,16 +291,22 @@ def xxRegexSplitH(text, sep_pattern, item=0):
 @xw.arg("pattern", doc=": 分隔符的正则表达式")
 @xw.arg(
     "group",
-    doc=": 返回第几个匹配组。缺省为1。如果用命名组，也可输入组名。",
+    doc=": 返回第几个匹配组。缺省为1。如果用命名组，也可输入组名。如果为0，则返回所有匹配组",
     default=1,
     numbers=int,
 )
-def xxRegexExtract(text, pattern, group=1):
+def xxRegexExtract(text:str, pattern:str, group:int =1):
     """用正则表达式分割字符串，结果横向显示"""
     reobj = re.compile(pattern, re.IGNORECASE | re.DOTALL | re.MULTILINE)
-    match = reobj.search(text)
-    if match:
-        return match.group(group)
+    if text:
+        match = reobj.search(text)
+        if match:
+            if group==0:
+                return [g for g in match.groups()]
+            else:
+                return match.group(group)
+        else:
+            return ""
     else:
         return ""
 
