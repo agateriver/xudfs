@@ -287,11 +287,11 @@ def xxRegexSplitH(text, sep_pattern, item=0):
 
 
 @xw.func
-@xw.arg("text", doc=": 待分割的文本")
-@xw.arg("pattern", doc=": 分隔符的正则表达式")
+@xw.arg("text", doc=": 待从中提取内容的文本")
+@xw.arg("pattern", doc=": 正则表达式(需含有捕获组)")
 @xw.arg(
     "group",
-    doc=": 返回第几个匹配组。缺省为1。如果用命名组，也可输入组名。如果为0，则返回所有匹配组",
+    doc=": 返回第几个匹配的捕获组。缺省为1。如果用命名组，也可输入组名。如果为0，则返回所有匹配组",
     default=1,
     numbers=int,
 )
