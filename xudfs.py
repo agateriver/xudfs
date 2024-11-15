@@ -180,7 +180,7 @@ __YZ_Fields__ = {  # 研招字段
 }
 
 
-def get_rand_password(digits=8, include_punctuation=False):
+def __get_rand_password__(digits=8, include_punctuation=False):
     if include_punctuation:
         return "".join(choice(__password_chars_2__) for x in range(0, digits))
     return "".join(choice(__password_chars__) for x in range(0, digits))
@@ -189,15 +189,15 @@ def get_rand_password(digits=8, include_punctuation=False):
 @xw.func
 @xw.arg("digits", doc=": 密码位数，缺省为8", numbers=int)
 @xw.arg("include_punctuation", doc=": 是否包含标点符号，缺省为False")
-def xxRandPassword(digits=8, include_punctuation=False):
+def xxGetRandPassword(digits=8, include_punctuation=False):
     """返回随机密码"""
-    return get_rand_password(digits, include_punctuation)
+    return __get_rand_password__(digits, include_punctuation)
 
 
 @xw.func
 @xw.arg("number_", doc=": 待转换的值")
 @xw.arg("is_int", doc=": 是否为整数，缺省为True")
-def xxToText(number_, is_int=True):
+def xxConvertToText(number_, is_int=True):
     """数值转换为文本"""
     if not isinstance(number_, str):
         if isinstance(is_int, bool) and is_int:
@@ -211,7 +211,7 @@ def xxToText(number_, is_int=True):
 @xw.func
 @xw.arg("text", doc=": 待转换的文本")
 @xw.arg("to_int", doc=": 是否转换为整数，缺省为True")
-def xxToNumber(text, to_int=True):
+def xxConvertToNumber(text, to_int=True):
     """将文本转换位数值"""
     if isinstance(to_int, bool) and to_int:
         return int(text)
@@ -287,6 +287,20 @@ def xxRegexSplitH(text, sep_pattern, item=0):
 
 
 @xw.func
+@xw.arg("text", doc=": 待分割的文本")
+@xw.arg("sep_pattern", doc=": 分隔符的正则表达式")
+@xw.arg(
+    "item",
+    doc=": 返回数组的第几项(1-based)。缺省为0则返回所有项",
+    default=0,
+    numbers=int,
+)
+@xw.ret(tranpose=True)
+def xxRegexSplitV(text, sep_pattern, item=0):
+    """用正则表达式分割字符串，结果纵向显示"""
+    return xxRegexSplitH(text, sep_pattern)
+
+@xw.func
 @xw.arg("text", doc=": 待从中提取内容的文本")
 @xw.arg("pattern", doc=": 正则表达式(需含有捕获组)")
 @xw.arg(
@@ -296,7 +310,7 @@ def xxRegexSplitH(text, sep_pattern, item=0):
     numbers=int,
 )
 def xxRegexExtract(text:str, pattern:str, group:int =1):
-    """用带捕获组的正则表达式提取文本，结果横向显示"""
+    """用带捕获组的正则表达式提取文本"""
     reobj = re.compile(pattern, re.IGNORECASE | re.DOTALL | re.MULTILINE)
     if text:
         match = reobj.search(text)
@@ -310,23 +324,6 @@ def xxRegexExtract(text:str, pattern:str, group:int =1):
     else:
         return ""
 
-
-@xw.func
-@xw.arg("text", doc=": 待分割的文本")
-@xw.arg("sep_pattern", doc=": 分隔符的正则表达式")
-@xw.arg(
-    "item",
-    doc=": 返回数组的第几项(1-based)。缺省为0则返回所有项",
-    default=0,
-    numbers=int,
-)
-def xxRegexSplitV(text, sep_pattern, item=0):
-    """用正则表达式分割字符串，结果纵向显示"""
-    result = [[s] for s in xxRegexSplitH(text, sep_pattern)]
-    if item == 0:
-        return result
-    else:
-        return result[item - 1][0]
 
 
 @xw.func
@@ -352,15 +349,16 @@ def xxSetUnionH(*ranges):
 
 @xw.func
 @xw.arg("ranges", expand="table", ndim=2, doc=": 选定的范围(Ranges)")
+@xw.ret(tranpose=True)
 def xxSetUnionV(*ranges):
     """返回所选ranges内所有唯一值的并集，结果纵向显示"""
-    return [[s] for s in xxSetUnionH(*ranges)]
+    return xxSetUnionH(*ranges)
 
 
 @xw.func
 @xw.arg("range1", np.array, ndim=2, doc=": 代表集合1的范围(Range)")
 @xw.arg("range2", np.array, ndim=2, doc=": 代表集合2的范围(Range)")
-def xxSetDiffH(range1, range2):
+def xxSetDifferenceH(range1, range2):
     """返回两个所选范围的差集，结果横向显示"""
     ss1 = set()
     for row in range1:
@@ -380,19 +378,16 @@ def xxSetDiffH(range1, range2):
 @xw.func
 @xw.arg("range1", np.array, ndim=2, doc=": 代表集合1的范围(Range)")
 @xw.arg("range2", np.array, ndim=2, doc=": 代表集合2的范围(Range)")
-def xxSetDiffV(range1, range2):
+@xw.ret(tranpose=True)
+def xxSetDifferenceV(range1, range2):
     """返回两个所选范围的差集，结果纵向显示"""
-    diff = xxSetDiffH(range1, range2)
-    if diff:
-        return [[s] for s in diff]
-    else:
-        return None
+    return xxSetDifferenceH(range1, range2)
 
 
 @xw.func
 @xw.arg("range1", np.array, ndim=2, doc=": 代表集合1的范围(Range)")
 @xw.arg("range2", np.array, ndim=2, doc=": 代表集合2的范围(Range)")
-def xxSetSymDiffH(range1, range2):
+def xxSetSymmetricDifferenceH(range1, range2):
     """返回两个集合的对称差集，结果横向显示"""
     ss1 = set()
     for row in range1:
@@ -412,18 +407,16 @@ def xxSetSymDiffH(range1, range2):
 @xw.func
 @xw.arg("range1", np.array, ndim=2, doc=": 代表集合1的范围(Range)")
 @xw.arg("range2", np.array, ndim=2, doc=": 代表集合2的范围(Range)")
-def xxSetSymDiffV(range1, range2):
+@xw.ret(tranpose=True)
+def xxSetSymmetricDifferenceV(range1, range2):
     """返回两个集合的对称差集，结果纵向显示"""
-    diff = xxSetSymDiffH(range1, range2)
-    if diff:
-        return [[s] for s in diff]
-    else:
-        return None
+    return xxSetSymmetricDifferenceH(range1, range2)
+
 
 
 @xw.func
 @xw.arg("ranges", ndim=2, doc=": 选定的范围(Ranges)")
-def xxSetIntersectH(*ranges):
+def xxSetIntersectionH(*ranges):
     """返回所选集合的交集，结果横向显示"""
     ss = set()
     for idx, range in enumerate([rng for rng in ranges if rng is not None]):
@@ -436,9 +429,10 @@ def xxSetIntersectH(*ranges):
 
 @xw.func
 @xw.arg("ranges", ndim=2, doc=": 选定的范围(Ranges)")
-def xxSetIntersectV(*ranges):
+@xw.ret(tranpose=True)
+def xxSetIntersectionV(*ranges):
     """返回两个集合的交集，结果纵向显示"""
-    return [[s] for s in xxSetIntersectH(*ranges)]
+    return  xxSetIntersectionH(*ranges)
 
 
 @xw.func
@@ -669,30 +663,14 @@ def xxSortCNamesViaSQLServerH(
     default="Driver={SQL Server};Server=.;Trusted_Connection=yes",
     doc=": SQLServer 连接字符串，缺省为本机信任连接",
 )
+@xw.ret(tranpose=True)
 def xxSortCNamesViaSQLServerV(
     names,
     ordyBy="pinyin",
     sqlConStr="Driver={SQL Server};Server=.;Trusted_Connection=yes",
 ):
     """通过SQL Server的排序规则将一行/列中文人名按拼音或笔画排序,可指定其它排序规则实现更多排序"""
-    conn = pyodbc.connect(sqlConStr, unicode_results=True, timeout=5)
-    cursor = conn.cursor()
-    s = """'),('""".join(names)
-    collate = ordyBy
-    if ordyBy.lower() == "pinyin":
-        collate = "Chinese_Simplified_Pinyin_100_CI_AS_KS_WS"
-    if ordyBy.lower() in ["bihua", "stroke"]:
-        collate = "Chinese_Simplified_Stroke_Order_100_CS_AS_KS_WS"
-    query = f"""SELECT C FROM (VALUES ('{s}')) as T(C) order by C collate {collate}"""  # noqa: E501
-    cursor.execute(query)
-    result = []
-    for row in cursor:
-        result.append(
-            [
-                row[0],
-            ]
-        )
-    return result
+    return xxSortCNamesViaSQLServerH(names, ordyBy, sqlConStr)
 
 
 @xw.func
@@ -771,7 +749,7 @@ def xxRandomGroup(data, n):
 @xw.arg("data", ndim=2, doc=":样本总体，行、列或矩阵")
 @xw.arg("n", doc=": 抽样数", numbers=int)
 def xxRandomSampleH(data, n):
-    """从总体中抽n个样本"""
+    """从总体中抽n个样本，结果横向显示"""
     import random
 
     result = []
@@ -784,19 +762,10 @@ def xxRandomSampleH(data, n):
 @xw.func(call_in_wizard=False)
 @xw.arg("data", ndim=2, doc=":样本总体,行、列或矩阵")
 @xw.arg("n", doc=": 抽样数", numbers=int)
+@xw.ret(transpose=True)
 def xxRandomSampleV(data, n):
-    """从总体中抽n个样本"""
-    import random
-
-    result = []
-    xdata = [j for i in data for j in i]
-    for i in random.sample(xdata, n):
-        result.append(
-            [
-                i,
-            ]
-        )
-    return result
+    """从总体中抽n个样本,结果纵向显示"""
+    return xxRandomSampleH(data, n)
 
 
 @xw.func
@@ -857,7 +826,7 @@ def xxCountPandasQuery(data, expr, cols=None):
 
 @xw.func
 @xw.arg("col_index", doc=": 以字母表示的列索引")
-def xxColumnIndexToNumber(col_index):
+def xxColumnIndexLetterToNumber(col_index):
     """将以字母表示的列索引转换为数字表示"""
     num = 0
     for c in col_index:
@@ -868,7 +837,7 @@ def xxColumnIndexToNumber(col_index):
 
 @xw.func
 @xw.arg("col_index", doc=": 以数字表示的列索引", numbers=int)
-def xxColumnIndexToLetter(col_index):
+def xxColumnIndexNumberToLetter(col_index):
     """将以数字表示的列索引转换为字母表示"""
     letter = ""
     while col_index > 0:
@@ -883,7 +852,7 @@ def xxColumnIndexToLetter(col_index):
 @xw.func
 @xw.arg("begin", doc=": 千字文起始句数。", numbers=int)
 @xw.arg("total", doc=": 总句数。", numbers=int)
-def xxQianZiWen(begin: int = 1, total: int = 125) -> str:
+def xxQianZiWenSlice(begin: int = 1, total: int = 125) -> str:
     """千字文字符串生成"""
     if begin == 1 and total == 125:
         return __kilos__
@@ -949,7 +918,7 @@ def xxYZFieldsRename(field: str) -> str:
 @xw.func(call_in_wizard=False)
 @xw.arg("path", doc=": DBF文件路径。")
 @xw.arg("encoding", doc=": DBF文件编码，缺省为UTF8。")
-def xxReadDBF(path: str, encoding: str = "UTF8") -> str:
+def xxReadDBF(path: str, encoding: str = "UTF8") :
     """读DBF文件"""
     table = DBF(path, encoding=encoding)
     return pd.DataFrame(iter(table))
@@ -966,17 +935,6 @@ def xxSumTableColumns(table, columns: str, condition_for_row: str = ""):
     return table.query(condition_for_row)[_columns].sum(axis=1).iloc[0]
 
 
-@xw.func(call_in_wizard=False)
-@xw.arg("table", pd.DataFrame, index=False, header=True)
-@xw.arg("columns", doc=": 要相加的列名，多个列名用逗号分隔")
-@xw.arg("condition_for_row", doc=": 用于选取某唯一行的条件")
-@xw.ret(index=False, header=False)
-def xxSumTableColumnsAsMu(table, columns: str, condition_for_row: str = ""):
-    """按指定的条件获取某行指定列的值之和"""
-    _columns = re.split(r"""[,，]\s*""", columns)
-    return table.query(condition_for_row)[_columns].sum(axis=1).iloc[0] * 3 / 2000
-
-
 @xw.func
 @xw.arg("tables", pd.DataFrame, index=False, header=True, doc=": 指定要合并的表(Table)")
 @xw.ret(index=False, header=True, expand="table")
@@ -987,7 +945,7 @@ def xxConcatTables(*tables):
 
 @xw.func
 @xw.arg("sq_meters", doc=": 平方米数")
-def xxSqMetersToMu(sq_meters: float) -> float:
+def xxConvertSqMetersToMu(sq_meters: float) -> float:
     """将平方米转换为亩"""
     return sq_meters * 3.0 / 2000
 
@@ -995,7 +953,7 @@ def xxSqMetersToMu(sq_meters: float) -> float:
 @xw.func
 @xw.arg("rng", ndim=2, doc=": 选定的范围(Range)")
 @xw.ret(expand="table")
-def xxFlatten(rng):
+def xxFlattenRange(rng):
     """将二维数组转换为一维数组"""
     result = [cell for row in rng for cell in row]
     return [[cell] for cell in result]
