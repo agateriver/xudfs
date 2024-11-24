@@ -342,8 +342,9 @@ def xxSetUnionH(*ranges):
     ss = set()
     for range in [rng for rng in ranges if rng is not None]:
         for row in range:
-            for cell in row:
-                ss.add(cell)
+            for cell in row :
+                if cell is not None:
+                    ss.add(cell)
     return sorted([s for s in ss])
 
 
@@ -363,11 +364,13 @@ def xxSetDifferenceH(range1, range2):
     ss1 = set()
     for row in range1:
         for cell in row:
-            ss1.add(cell)
+            if cell is not None:
+                ss1.add(cell)
     ss2 = set()
     for row in range2:
         for cell in row:
-            ss2.add(cell)
+            if cell is not None:
+                ss2.add(cell)
     set_diff = ss1.difference(ss2)
     if set_diff:
         return sorted([s for s in set_diff])
@@ -392,11 +395,13 @@ def xxSetSymmetricDifferenceH(range1, range2):
     ss1 = set()
     for row in range1:
         for cell in row:
-            ss1.add(cell)
+            if cell is not None:
+                ss1.add(cell)
     ss2 = set()
     for row in range2:
         for cell in row:
-            ss2.add(cell)
+            if cell is not None:
+                ss2.add(cell)
     set_diff = ss1.symmetric_difference(ss2)
     if set_diff:
         return sorted([s for s in set_diff])
@@ -421,9 +426,9 @@ def xxSetIntersectionH(*ranges):
     ss = set()
     for idx, range in enumerate([rng for rng in ranges if rng is not None]):
         if idx == 0:
-            ss = set([cell for row in range for cell in row])
+            ss = set([cell for row in range for cell in row if cell is not None])
         else:
-            ss = ss.intersection(set([cell for row in range for cell in row]))
+            ss = ss.intersection(set([cell for row in range for cell in row if cell is not None]))
     return sorted([s for s in ss])
 
 
@@ -443,11 +448,13 @@ def xxSetIsSubset(range1, range2):
     ss1 = set()
     for row in range1:
         for cell in row:
-            ss1.add(cell)
+            if cell is not None:
+                ss1.add(cell)
     ss2 = set()
     for row in range2:
         for cell in row:
-            ss2.add(cell)
+            if cell is not None:
+                ss2.add(cell)
     return ss1.issubset(ss2)
 
 
@@ -459,11 +466,13 @@ def xxSetIsSuperSet(range1, range2):
     ss1 = set()
     for row in range1:
         for cell in row:
-            ss1.add(cell)
+            if cell is not None:
+                ss1.add(cell)
     ss2 = set()
     for row in range2:
         for cell in row:
-            ss2.add(cell)
+            if cell is not None:
+                ss2.add(cell)
     return ss1.issuperset(ss2)
 
 
@@ -475,11 +484,13 @@ def xxSetIsDisjoint(range1, range2):
     ss1 = set()
     for row in range1:
         for cell in row:
-            ss1.add(cell)
+            if cell is not None:
+                ss1.add(cell)
     ss2 = set()
     for row in range2:
         for cell in row:
-            ss2.add(cell)
+            if cell is not None:
+                ss2.add(cell)
     return ss1.isdisjoint(ss2)
 
 
