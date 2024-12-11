@@ -14,6 +14,7 @@ from dbfread import DBF
 from faker import Faker
 import pypinyin as py
 import chinese_stroke_sorting as css
+import  xlwings.ext as xw_ext
 
 pd.options.future.infer_string = True  # for pnadas>2.1
 
@@ -991,6 +992,19 @@ def xxSnakeCase(s: str) -> str:
     return "".join(word.capitalize() for word in re.split(r"[\s_]", s))
 
 
+@xw.func
+@xw.arg("columns", doc=": 指定各表要保留的共同列名，多个列名用逗号分隔")
+@xw.arg("tables",  ndim=2, doc=": 指定要合并的表(Table)")
+def xxUnionTableByColumns(columns,*tables):
+    """纵向合并多个表(Table)，仅保留指定的列"""
+    columns=", ".join(list(re.split(r"\s*[,，]\s*",columns)))
+    sql_strs = []
+    for i, table in enumerate(tables):
+        name = chr(65 + i)
+        sql_strs.append(f"select {columns} from {name}")
+    sql_str = " union  ".join(sql_strs)
+    return xw_ext.sql(sql_str,*tables)
+
 # for debug
-if __name__ == "__main__":
+if __name__ == "__main__": 
     xw.serve()
