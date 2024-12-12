@@ -996,7 +996,7 @@ def xxSnakeCase(s: str) -> str:
 @xw.arg("columns", doc=": 指定各表要保留的共同列名，多个列名用逗号分隔")
 @xw.arg("tables",  ndim=2, doc=": 指定要合并的表(Table)")
 def xxUnionTableByColumns(columns,*tables):
-    """纵向合并多个表(Table)，仅保留指定的列"""
+    """纵向合并多个表(Table)，仅保留指定的列并去除重复的行"""
     columns=", ".join(list(re.split(r"\s*[,，]\s*",columns)))
     sql_strs = []
     for i, table in enumerate(tables):
