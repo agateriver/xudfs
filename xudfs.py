@@ -1005,6 +1005,22 @@ def xxUnionTableByColumns(columns,*tables):
     sql_str = " union  ".join(sql_strs)
     return xw_ext.sql(sql_str,*tables)
 
+@xw.func
+@xw.arg("columns", doc=": 指定各表要保留的共同列名，多个列名用逗号分隔")
+@xw.arg("where", doc=": 查询条件。忽略或为空则不指定查询条件")
+@xw.arg("tables",  ndim=2, doc=": 指定要合并的多个表(Table)")
+def xxUnionTableByCond(columns,where,*tables):
+    """纵向合并多个表(Table)，仅保留指定的列和满足查询条件的行并去除重复记录"""
+    columns=", ".join(list(re.split(r"\s*[,，]\s*",columns)))
+    if not where:
+        where = "1=1"
+    sql_strs = []
+    for i, table in enumerate(tables):
+        name = chr(65 + i)
+        sql_strs.append(f"select {columns} from {name} where {where}")
+    sql_str = " union  ".join(sql_strs)
+    return xw_ext.sql(sql_str,*tables)
+
 # for debug
 if __name__ == "__main__": 
     xw.serve()
