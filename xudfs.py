@@ -178,6 +178,17 @@ __YZ_Fields__ = {  # 研招字段
     "ZZLLM": "政治理论码",
     "ZZLLMC": "政治理论名称",
     "ZZMMM": "政治面貌码",
+    "LQXXFS": "录取学习方式",
+    "SFYZY": "是否一志愿",
+    "LQDWDM": "录取单位代码",
+    "LQDWMC": "录取单位名称",
+    "LQYXSMC":"录取院系所名称",
+    "LQYXSM":"录取院系所码",
+    "LQZYDM":"录取专业代码",
+    "LQZYMC":"录取专业名称",
+    "LQYJFXDM":"录取研究方向代码",
+    "LQYJFXMC":"录取研究方向名称",
+    "LQLBM":"录取类别码",
 }
 
 
@@ -296,7 +307,7 @@ def xxRegexSplitH(text, sep_pattern, item=0):
     default=0,
     numbers=int,
 )
-@xw.ret(tranpose=True)
+@xw.ret(transpose=True)
 def xxRegexSplitV(text, sep_pattern, item=0):
     """用正则表达式分割字符串，结果纵向显示"""
     return xxRegexSplitH(text, sep_pattern)
@@ -351,7 +362,7 @@ def xxSetUnionH(*ranges):
 
 @xw.func
 @xw.arg("ranges", expand="table", ndim=2, doc=": 选定的范围(Ranges)")
-@xw.ret(tranpose=True)
+@xw.ret(transpose=True)
 def xxSetUnionV(*ranges):
     """返回所选ranges内所有唯一值的并集，结果纵向显示"""
     return xxSetUnionH(*ranges)
@@ -382,7 +393,7 @@ def xxSetDifferenceH(range1, range2):
 @xw.func
 @xw.arg("range1", np.array, ndim=2, doc=": 代表集合1的范围(Range)")
 @xw.arg("range2", np.array, ndim=2, doc=": 代表集合2的范围(Range)")
-@xw.ret(tranpose=True)
+@xw.ret(transpose=True)
 def xxSetDifferenceV(range1, range2):
     """返回两个所选范围的差集，结果纵向显示"""
     return xxSetDifferenceH(range1, range2)
@@ -413,7 +424,7 @@ def xxSetSymmetricDifferenceH(range1, range2):
 @xw.func
 @xw.arg("range1", np.array, ndim=2, doc=": 代表集合1的范围(Range)")
 @xw.arg("range2", np.array, ndim=2, doc=": 代表集合2的范围(Range)")
-@xw.ret(tranpose=True)
+@xw.ret(transpose=True)
 def xxSetSymmetricDifferenceV(range1, range2):
     """返回两个集合的对称差集，结果纵向显示"""
     return xxSetSymmetricDifferenceH(range1, range2)
@@ -435,7 +446,7 @@ def xxSetIntersectionH(*ranges):
 
 @xw.func
 @xw.arg("ranges", ndim=2, doc=": 选定的范围(Ranges)")
-@xw.ret(tranpose=True)
+@xw.ret(transpose=True)
 def xxSetIntersectionV(*ranges):
     """返回两个集合的交集，结果纵向显示"""
     return  xxSetIntersectionH(*ranges)
@@ -675,7 +686,7 @@ def xxSortCNamesViaSQLServerH(
     default="Driver={SQL Server};Server=.;Trusted_Connection=yes",
     doc=": SQLServer 连接字符串，缺省为本机信任连接",
 )
-@xw.ret(tranpose=True)
+@xw.ret(transpose=True)
 def xxSortCNamesViaSQLServerV(
     names,
     ordyBy="pinyin",
