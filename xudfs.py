@@ -15,6 +15,8 @@ from faker import Faker
 import pypinyin as py
 import chinese_stroke_sorting as css
 import  xlwings.ext as xw_ext
+import zipfile
+import xml.etree.ElementTree as ET
 
 pd.options.future.infer_string = True  # for pnadas>2.1
 
@@ -984,9 +986,13 @@ def xxFlattenRange(rng):
 
 @xw.func
 @xw.arg("hanzi", doc=": 汉字")
-def xxPinyinInitial(hanzi: str) -> str:
-    """汉字拼音首字母"""
-    return py.pinyin(hanzi, style=py.Style.INITIALS, strict=False)
+def xxPinyin(hanzi: str,style: str="initials") -> str:
+    """汉字拼音首字母或带声调拼音，style可选initials或tone，默认initials首字母"""
+    style = style.lower()
+    if style in ["initials","initial","ini","i"]:
+        return py.pinyin(hanzi, style=py.style.initials, strict=False)
+    else:
+        return py.pinyin(hanzi, style=py.style.tone, strict=False)
 
 
 @xw.func
@@ -1031,6 +1037,68 @@ def xxUnionTableByCond(columns,where,*tables):
         sql_strs.append(f"select {columns} from {name} where {where}")
     sql_str = " union  ".join(sql_strs)
     return xw_ext.sql(sql_str,*tables)
+
+def __extract_cellimages_from_xlsx__(xlsx_path):
+        """
+        从XML文件中提取xdr:cNvpr元素的name属性和a:blip元素的r:embed属性
+        返回元组列表 [(ID1, image1), (ID2, image2), ...]
+        """
+        # 定义XML命名空间
+        namespaces = {
+            'xdr': 'http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing',
+            'r': 'http://schemas.openxmlformats.org/officeDocument/2006/relationships',
+            'a': 'http://schemas.openxmlformats.org/drawingml/2006/main',
+            'etc': 'http://www.wps.cn/officeDocument/2017/etCustomData'
+        }
+        
+        try:
+            with zipfile.ZipFile(xlsx_path, 'r') as z:
+                if 'xl/cellimages.xml' in z.namelist():
+                    with z.open('xl/cellimages.xml') as f:
+                        tree = ET.parse(f)
+                        root = tree.getroot()
+                        
+                        result = {}
+                        
+                        # 查找所有etc:cellImage元素
+                        for cell_image in root.findall('etc:cellImage', namespaces):
+                            # 查找xdr:cNvPr元素并获取name属性
+                            c_nv_pr = cell_image.find('.//xdr:cNvPr', namespaces)
+                            name = c_nv_pr.get('name') if c_nv_pr is not None else None
+                            
+                            # 查找a:blip元素并获取r:embed属性
+                            blip = cell_image.find('.//a:blip', namespaces)
+                            embed = blip.get('{http://schemas.openxmlformats.org/officeDocument/2006/relationships}embed') if blip is not None else None
+                            
+                            # get name and embed, remove 'rId' prefix from embed
+                            # get image name from rId
+                            if name is not None and embed is not None:
+                                rid = embed.removeprefix('rId')
+                                for fn in z.namelist():
+                                    if fn.startswith(f"xl/media/image{rid}."):
+                                        image_name = fn.removeprefix("xl/media/") 
+                                        result[name]=image_name
+                                        break
+                        
+                        return result
+            
+        except Exception as _e:
+            return {}
+
+@xw.func
+@xw.arg("cell", doc=": 嵌入图片的单元格")
+def xxGetCellImageName(cell:xw.Range)->str:
+    """获取WPS365生成的图片单元格中内嵌的图片文件名(位于内部的xl/media/目录中)"""
+    img_set= __extract_cellimages_from_xlsx__(cell.sheet.book.fullname)
+    for img_ID, image_name in img_set.items():
+        r = re.compile(r'"(ID_.{32})"')
+        m = r.search(cell.formula)
+        if m:
+            name = m.group(1)
+            return img_set[name]
+        else:
+            return ""
+    return ""
 
 # for debug
 if __name__ == "__main__": 
