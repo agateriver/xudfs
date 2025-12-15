@@ -1100,6 +1100,51 @@ def xxGetCellImageName(cell:xw.Range)->str:
             return ""
     return ""
 
+@xw.script
+def xxMacroExportCellImages():
+    """导出当前工作簿中所有嵌入图片单元格的图片到指定文件夹"""
+    import os
+
+    wb = xw.Book.caller()
+    xlsx_path = wb.fullname
+    img_set= __extract_cellimages_from_xlsx__(xlsx_path)
+    if not img_set:
+        xw.apps.active.alert("未找到嵌入图片的单元格或当前工作簿不是WPS365格式的xlsx文件！")
+        return
+    
+    msoFileDialogFolderPicker = 4
+    fd = xw.apps.active.api.FileDialog(msoFileDialogFolderPicker)
+    fd.Title = "选择导出图片的文件夹"
+    fd.InitialFileName = os.path.dirname(xlsx_path)
+
+    fdr = fd.Show()
+    if fdr != 0:
+        dest_dir = fd.SelectedItems(1)
+        if not os.path.exists(dest_dir):
+            os.makedirs(dest_dir)
+    else:
+        return  # 用户取消选择
+
+    subdir = "xl/media/"
+    with zipfile.ZipFile(xlsx_path, 'r') as zf:
+        files = [m for m in zf.namelist() if m.startswith(subdir)]
+        
+        for idx, member in enumerate(files):
+            # Remove the leading subdir part so we don't create extra nesting
+            target_path = os.path.join(dest_dir, member.removeprefix(subdir))
+            
+            # If it's a directory entry (ends with '/'), create the dir
+            if member.endswith('/'):
+                os.makedirs(target_path, exist_ok=True)
+            else:
+                # Ensure parent directory exists
+                os.makedirs(os.path.dirname(target_path), exist_ok=True)
+                # Extract the file
+                with zf.open(member) as source, open(target_path, "wb") as target:
+                    target.write(source.read())
+                    # break
+    xw.apps.active.alert(f"成功导出{len(img_set)}张图片到文件夹：{dest_dir}")
+
 # for debug
 if __name__ == "__main__": 
     xw.serve()
